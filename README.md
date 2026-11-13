@@ -10,20 +10,38 @@ Plataforma de diagnóstico institucional e planejamento de políticas públicas 
 |---|---|
 | Ambiente Docker (WordPress + Nginx + MariaDB) | ✅ Dia 1 |
 | Plugin `equigov-core`: CPTs, metadados, RBAC, isolamento por instituição, auditoria | ✅ Dia 1 |
-| Motor de diagnóstico + API REST | ⏳ Dia 2 |
+| Motor de diagnóstico (perguntas condicionais, pontuação explicável) + API REST | ✅ Dia 2 |
 | Serviço de IA (FastAPI + RAG) | ⏳ Dia 3 |
 | Integração, GitLab CI/CD, segurança | ⏳ Dia 4 |
 
 ## Rodando localmente
 
-Requisitos: Docker + Docker Compose, Make, PHP 8.2+ e Composer (para os testes).
+Requisito: Docker (Docker Desktop no Windows/macOS). Os testes rodam em container.
 
-```bash
-make install      # cria .env, sobe containers, instala WP, ativa plugin, cria dados de demo
-open http://localhost:8080/wp-admin
-curl http://localhost:8080/wp-json/equigov/v1/health
-make test         # PHPUnit
+**Windows (PowerShell):**
+
+```powershell
+.\tasks.ps1 install   # cria .env, sobe containers, instala WP, ativa plugin, cria dados de demo
+.\tasks.ps1 test      # PHPUnit (44 testes do domínio)
+.\tasks.ps1 smoke     # integração: API + banco reais, incluindo isolamento entre instituições
 ```
+
+**Linux/macOS:** `make install`, `make test`, `make smoke`.
+
+## API
+
+Namespace `equigov/v1`. Autenticação, erros, regra de pontuação e exemplos em [`docs/api.md`](docs/api.md).
+
+| Método | Rota | Quem |
+|---|---|---|
+| GET | `/health` | público |
+| GET | `/questionnaires`, `/questionnaires/{id}` | leitor+ |
+| GET / POST | `/diagnoses` | leitor+ / gestor |
+| GET | `/diagnoses/{id}`, `/diagnoses/{id}/report` | leitor+ da mesma instituição |
+| PATCH | `/diagnoses/{id}/answers` | gestor da mesma instituição |
+| POST | `/diagnoses/{id}/submit` | gestor da mesma instituição |
+
+Depois acesse `http://localhost:8080/wp-admin` e `http://localhost:8080/wp-json/equigov/v1/health`.
 
 Usuários de demonstração (senha `demo-equigov-2026`): `gestora.a`, `revisor.a`, `leitor.a` (Instituição A) e `gestor.b` (Instituição B).
 
