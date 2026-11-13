@@ -1,0 +1,190 @@
+{
+  "key": "acesso_servicos",
+  "version": 1,
+  "title": "Diagnóstico de acesso inclusivo a serviços públicos",
+  "dimensions": {
+    "acesso": "Acesso físico e digital",
+    "comunicacao": "Comunicação e linguagem",
+    "dados": "Dados e monitoramento",
+    "atendimento": "Atendimento e equipe",
+    "governanca": "Governança e escuta"
+  },
+  "questions": [
+    {
+      "key": "canais",
+      "dimension": "acesso",
+      "type": "single_choice",
+      "weight": 3,
+      "text": "Por quais canais o principal serviço da unidade pode ser solicitado?",
+      "options": [
+        { "value": "so_digital", "label": "Somente digital", "risk": 0.9,
+          "finding": "Canal exclusivamente digital pode excluir pessoas sem acesso à internet, sem dispositivo próprio ou com baixo letramento digital." },
+        { "value": "so_presencial", "label": "Somente presencial", "risk": 0.6,
+          "finding": "Canal exclusivamente presencial impõe custos de deslocamento e tempo, afetando sobretudo moradores de áreas afastadas e trabalhadores com jornada rígida." },
+        { "value": "ambos", "label": "Presencial e digital", "risk": 0.1 }
+      ]
+    },
+    {
+      "key": "digital_acessivel",
+      "dimension": "acesso",
+      "type": "single_choice",
+      "weight": 2,
+      "text": "O canal digital já foi avaliado quanto à acessibilidade (eMAG/WCAG)?",
+      "show_if": { "question": "canais", "op": "in", "value": ["so_digital", "ambos"] },
+      "options": [
+        { "value": "avaliado_corrigido", "label": "Sim, e as falhas foram corrigidas", "risk": 0.0 },
+        { "value": "avaliado_pendente", "label": "Sim, mas há falhas pendentes", "risk": 0.5,
+          "finding": "Falhas de acessibilidade digital conhecidas e não corrigidas mantêm barreiras para pessoas com deficiência." },
+        { "value": "nunca", "label": "Nunca foi avaliado", "risk": 0.9,
+          "finding": "Sem avaliação de acessibilidade, não há garantia de que pessoas com deficiência consigam usar o canal digital.",
+          "reference": "Lei nº 13.146/2015 (Lei Brasileira de Inclusão), art. 63" }
+      ]
+    },
+    {
+      "key": "acessibilidade_fisica",
+      "dimension": "acesso",
+      "type": "multi_choice",
+      "weight": 3,
+      "text": "Quais recursos de acessibilidade física existem no local de atendimento?",
+      "show_if": { "question": "canais", "op": "in", "value": ["so_presencial", "ambos"] },
+      "finding": "Recursos de acessibilidade física ausentes",
+      "reference": "Lei nº 13.146/2015 (Lei Brasileira de Inclusão)",
+      "options": [
+        { "value": "rampa", "label": "Rampa ou acesso sem degraus" },
+        { "value": "piso_tatil", "label": "Piso tátil" },
+        { "value": "banheiro", "label": "Banheiro acessível" },
+        { "value": "sinalizacao", "label": "Sinalização visual e em braile" },
+        { "value": "assentos", "label": "Assentos preferenciais" }
+      ]
+    },
+    {
+      "key": "atendimento_prioritario",
+      "dimension": "atendimento",
+      "type": "single_choice",
+      "weight": 2,
+      "text": "Existe protocolo de atendimento prioritário conhecido pela equipe e aplicado?",
+      "show_if": { "question": "canais", "op": "in", "value": ["so_presencial", "ambos"] },
+      "options": [
+        { "value": "sim", "label": "Sim, aplicado de forma consistente", "risk": 0.0 },
+        { "value": "informal", "label": "Existe, mas é aplicado informalmente", "risk": 0.5,
+          "finding": "Prioridade aplicada de forma informal depende da percepção de cada atendente e gera tratamento desigual." },
+        { "value": "nao", "label": "Não existe", "risk": 1.0, "critical": true,
+          "finding": "Ausência de atendimento prioritário descumpre obrigação legal e expõe idosos, gestantes e pessoas com deficiência a esperas indevidas.",
+          "reference": "Lei nº 10.048/2000" }
+      ]
+    },
+    {
+      "key": "libras",
+      "dimension": "comunicacao",
+      "type": "single_choice",
+      "weight": 3,
+      "text": "Como a unidade atende pessoas surdas usuárias de Libras?",
+      "options": [
+        { "value": "presencial", "label": "Profissional fluente em Libras no local", "risk": 0.0 },
+        { "value": "remoto", "label": "Central de interpretação por vídeo", "risk": 0.2 },
+        { "value": "nao_ha", "label": "Não há recurso", "risk": 1.0, "critical": true,
+          "finding": "Sem atendimento em Libras, pessoas surdas dependem de terceiros para acessar o serviço, com perda de autonomia e sigilo.",
+          "reference": "Lei nº 10.436/2002 e Decreto nº 5.626/2005" }
+      ]
+    },
+    {
+      "key": "linguagem_simples",
+      "dimension": "comunicacao",
+      "type": "single_choice",
+      "weight": 2,
+      "text": "Os formulários e comunicados ao público usam linguagem simples?",
+      "options": [
+        { "value": "sim", "label": "Sim, revisados com esse critério", "risk": 0.0 },
+        { "value": "parcial", "label": "Parcialmente", "risk": 0.5,
+          "finding": "Textos técnicos ou burocráticos dificultam a compreensão de direitos e requisitos, sobretudo para pessoas com baixa escolaridade." },
+        { "value": "nao", "label": "Não", "risk": 0.9,
+          "finding": "Comunicação sem linguagem simples transfere ao cidadão o custo de interpretar a burocracia." }
+      ]
+    },
+    {
+      "key": "outros_idiomas",
+      "dimension": "comunicacao",
+      "type": "single_choice",
+      "weight": 1,
+      "text": "A unidade consegue atender pessoas que não falam português (migrantes, povos indígenas)?",
+      "options": [
+        { "value": "sim", "label": "Sim, com intérprete ou material traduzido", "risk": 0.0 },
+        { "value": "improviso", "label": "Apenas de forma improvisada", "risk": 0.6,
+          "finding": "Atendimento improvisado a não falantes de português aumenta o risco de erros e de desistência do serviço." },
+        { "value": "nao", "label": "Não", "risk": 0.9,
+          "finding": "Barreira linguística impede o acesso de migrantes e de parte dos povos indígenas." }
+      ]
+    },
+    {
+      "key": "coleta_desagregada",
+      "dimension": "dados",
+      "type": "multi_choice",
+      "weight": 3,
+      "text": "Quais informações sobre o público atendido são registradas?",
+      "finding": "Recortes não registrados nos dados de atendimento",
+      "options": [
+        { "value": "raca_cor", "label": "Raça/cor" },
+        { "value": "genero", "label": "Gênero" },
+        { "value": "deficiencia", "label": "Deficiência" },
+        { "value": "idade", "label": "Faixa etária" },
+        { "value": "territorio", "label": "Território/bairro" }
+      ]
+    },
+    {
+      "key": "uso_dados",
+      "dimension": "dados",
+      "type": "single_choice",
+      "weight": 2,
+      "text": "Os dados registrados são usados para identificar desigualdades no atendimento?",
+      "show_if": { "question": "coleta_desagregada", "op": "not_empty" },
+      "options": [
+        { "value": "regular", "label": "Sim, com análise periódica", "risk": 0.0 },
+        { "value": "eventual", "label": "Eventualmente", "risk": 0.5,
+          "finding": "Análise eventual dos dados não permite acompanhar se as desigualdades estão diminuindo." },
+        { "value": "nunca", "label": "Nunca", "risk": 0.9,
+          "finding": "Dados coletados e não analisados não orientam decisões." }
+      ]
+    },
+    {
+      "key": "capacitacao",
+      "dimension": "atendimento",
+      "type": "single_choice",
+      "weight": 2,
+      "text": "A equipe de atendimento recebe formação sobre atendimento inclusivo e não discriminatório?",
+      "options": [
+        { "value": "periodica", "label": "Sim, periodicamente", "risk": 0.0 },
+        { "value": "pontual", "label": "Já houve, sem periodicidade", "risk": 0.5,
+          "finding": "Formação pontual se perde com a rotatividade da equipe." },
+        { "value": "nunca", "label": "Nunca", "risk": 0.9,
+          "finding": "Sem formação, práticas discriminatórias tendem a se repetir sem que a equipe as reconheça." }
+      ]
+    },
+    {
+      "key": "canal_denuncia",
+      "dimension": "governanca",
+      "type": "single_choice",
+      "weight": 2,
+      "text": "Existe canal para relatar discriminação no atendimento, com prazo de resposta?",
+      "options": [
+        { "value": "especifico", "label": "Sim, específico e com prazo", "risk": 0.0 },
+        { "value": "generico", "label": "Apenas ouvidoria genérica", "risk": 0.4,
+          "finding": "Sem categoria específica, relatos de discriminação se diluem entre outras reclamações e não geram indicador." },
+        { "value": "nao", "label": "Não existe", "risk": 0.9,
+          "finding": "Sem canal de relato, a instituição não fica sabendo das discriminações que ocorrem." }
+      ]
+    },
+    {
+      "key": "participacao",
+      "dimension": "governanca",
+      "type": "single_choice",
+      "weight": 1,
+      "required": false,
+      "text": "Usuários do serviço participam da avaliação ou do redesenho do atendimento?",
+      "options": [
+        { "value": "sim", "label": "Sim", "risk": 0.0 },
+        { "value": "nao", "label": "Não", "risk": 0.7,
+          "finding": "Sem participação dos usuários, as barreiras são avaliadas apenas do ponto de vista de quem presta o serviço." }
+      ]
+    }
+  ]
+}
