@@ -11,7 +11,7 @@ Plataforma de diagnóstico institucional e planejamento de políticas públicas 
 | Ambiente Docker (WordPress + Nginx + MariaDB) | ✅ Dia 1 |
 | Plugin `equigov-core`: CPTs, metadados, RBAC, isolamento por instituição, auditoria | ✅ Dia 1 |
 | Motor de diagnóstico (perguntas condicionais, pontuação explicável) + API REST | ✅ Dia 2 |
-| Serviço de IA (FastAPI + RAG) | ⏳ Dia 3 |
+| Serviço de IA: busca híbrida, planos com citações verificadas ([`ai-service/`](ai-service/README.md)) | ✅ Dia 3 |
 | Integração, GitLab CI/CD, segurança | ⏳ Dia 4 |
 
 ## Rodando localmente
@@ -24,6 +24,8 @@ Requisito: Docker (Docker Desktop no Windows/macOS). Os testes rodam em containe
 .\tasks.ps1 install   # cria .env, sobe containers, instala WP, ativa plugin, cria dados de demo
 .\tasks.ps1 test      # PHPUnit (44 testes do domínio)
 .\tasks.ps1 smoke     # integração: API + banco reais, incluindo isolamento entre instituições
+.\tasks.ps1 ai-ingest # indexa os documentos de ai-service/corpus
+.\tasks.ps1 ai-test   # testes do serviço de IA
 ```
 
 **Linux/macOS:** `make install`, `make test`, `make smoke`.
@@ -50,7 +52,7 @@ Usuários de demonstração (senha `demo-equigov-2026`): `gestora.a`, `revisor.a
 ```
 Navegador ─▶ Nginx ─▶ WordPress (PHP-FPM) + plugin equigov-core ─▶ MariaDB
                                    │
-                                   └──▶ ai-service (FastAPI + RAG)   [Dia 3]
+                                   └──▶ ai-service (FastAPI + RAG) ─▶ LLM (API compatível OpenAI)
 ```
 
 Decisões registradas em [`docs/adr/`](docs/adr/) (Dia 5).
