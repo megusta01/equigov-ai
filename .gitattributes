@@ -1,0 +1,9 @@
+# Scripts que rodam dentro dos containers Linux precisam de LF,
+# senão o bash falha com "$'\r': command not found".
+* text=auto
+*.sh   text eol=lf
+*.conf text eol=lf
+*.ini  text eol=lf
+Dockerfile text eol=lf
+Makefile   text eol=lf
+*.ps1  text eol=crlf
