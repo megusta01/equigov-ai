@@ -35,7 +35,7 @@ class Settings:
     embedding_model: str = field(
         default_factory=lambda: os.environ.get("EMBEDDING_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
     )
-    top_k_per_finding: int = field(default_factory=lambda: _int("TOP_K_PER_FINDING", 3))
+    top_k_per_finding: int = field(default_factory=lambda: _int("TOP_K_PER_FINDING", 4))
     max_sources: int = field(default_factory=lambda: _int("MAX_SOURCES", 10))
     max_findings: int = field(default_factory=lambda: _int("MAX_FINDINGS", 6))
 
