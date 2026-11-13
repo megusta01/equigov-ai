@@ -50,6 +50,7 @@ def test_generate_plan(client):
     body = r.json()
     assert body["actions"] and body["meta"]["provider"] == "fake"
     assert r.headers["x-request-id"]
+    assert r.headers["content-type"] == "application/json; charset=utf-8"
 
 
 def test_plan_input_validation(client):
@@ -69,6 +70,7 @@ def test_service_starts_without_llm_key_and_reports_it(tmp_path):
     assert c.post("/v1/search", json={"query": "Libras"}).status_code == 200  # busca segue funcionando
     r = c.post("/v1/plans", json={"diagnosis": diagnosis()})
     assert r.status_code == 503 and r.json()["code"] == "llm_not_configured"
+    assert "charset=utf-8" in r.headers["content-type"]
 
 
 def test_delete_document(client):

@@ -30,6 +30,12 @@ from .retrieval.store import Store
 
 log = logging.getLogger("equigov.ai")
 
+
+class UTF8JSONResponse(JSONResponse):
+    # charset explícito: clientes como o PowerShell 5.1 assumem Latin-1 sem ele e corrompem acentos.
+    media_type = "application/json; charset=utf-8"
+
+
 # Declarado como esquema de segurança: o /docs ganha o botão "Authorize".
 _token_header = APIKeyHeader(name="X-Service-Token", auto_error=False, description="Token compartilhado com o WordPress")
 
@@ -74,7 +80,7 @@ def create_app(
         llm_error = e.code
 
     c = Container(s, store, retriever, IngestionService(store, retriever, embedder), planner, llm_error)
-    app = FastAPI(title="EquiGov AI Service", version=__version__, description=__doc__)
+    app = FastAPI(title="EquiGov AI Service", version=__version__, description=__doc__, default_response_class=UTF8JSONResponse)
     app.state.c = c
 
     @app.middleware("http")
@@ -99,7 +105,7 @@ def create_app(
     @app.exception_handler(LLMError)
     async def llm_error_handler(_: Request, e: LLMError):
         log.warning("llm_error", extra={"code": e.code, "detail": str(e)})
-        return JSONResponse({"code": e.code, "message": str(e)}, status_code=e.status)
+        return UTF8JSONResponse({"code": e.code, "message": str(e)}, status_code=e.status)
 
     def require_token(token: str | None = Security(_token_header)) -> None:
         # compare_digest: tempo constante, não vaza quantos caracteres coincidem (timing attack)
