@@ -70,6 +70,22 @@ switch ($Task) {
                 wp-content/plugins/equigov-core/tests/smoke/api-smoke.php
         }
     }
+    'ai-test' {
+        Invoke-Checked { docker compose run --rm --no-deps ai-service python -m pytest }
+    }
+    'ai-lint' {
+        Invoke-Checked { docker compose run --rm --no-deps ai-service ruff check app tests }
+    }
+    'ai-ingest' {
+        Invoke-Checked { docker compose exec ai-service python -m app.cli ingest /corpus }
+    }
+    'ai-eval' {
+        Invoke-Checked { docker compose exec ai-service python -m app.cli eval }
+    }
+    'ai-search' {
+        Invoke-Checked { docker compose exec ai-service python -m app.cli search ($Rest -join ' ') }
+    }
+    'ai-logs' { docker compose logs -f --tail=100 ai-service }
     'lint' {
         Invoke-Checked {
             docker run --rm -v "${PWD}/${Plugin}:/app" -w /app php:8.3-cli `
@@ -92,6 +108,12 @@ Uso: .\tasks.ps1 <tarefa>
   wp        WP-CLI. Ex: .\tasks.ps1 wp equigov seed
   test      PHPUnit (roda em container)
   smoke     Teste de integração da API (precisa do install antes)
+  ai-test   Testes do serviço de IA (pytest)
+  ai-lint   Lint do serviço de IA (ruff)
+  ai-ingest Ingere os documentos de ai-service/corpus
+  ai-eval   Avaliação da busca (hit@k, MRR)
+  ai-search Busca no acervo. Ex: .\tasks.ps1 ai-search interprete de libras
+  ai-logs   Logs do serviço de IA
   lint      Verifica sintaxe PHP (roda em container)
   reset     Apaga TUDO (inclusive o banco)
 '@ | Write-Host

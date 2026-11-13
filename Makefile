@@ -6,7 +6,7 @@ ifneq (,$(wildcard .env))
 include .env
 endif
 
-.PHONY: help up down install logs shell wp test smoke lint reset
+.PHONY: help up down install logs shell wp test smoke ai-test ai-lint ai-ingest ai-eval lint reset
 
 help: ## Lista os comandos
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -41,6 +41,18 @@ test: ## Testes unitários do plugin
 
 smoke: ## Teste de integração da API (precisa do install antes)
 	$(DC) exec wordpress wp --allow-root eval-file wp-content/plugins/equigov-core/tests/smoke/api-smoke.php
+
+ai-test: ## Testes do serviço de IA
+	$(DC) run --rm --no-deps ai-service python -m pytest
+
+ai-lint: ## Lint do serviço de IA
+	$(DC) run --rm --no-deps ai-service ruff check app tests
+
+ai-ingest: ## Ingere ai-service/corpus
+	$(DC) exec ai-service python -m app.cli ingest /corpus
+
+ai-eval: ## Avaliação da busca
+	$(DC) exec ai-service python -m app.cli eval
 
 lint: ## Verifica sintaxe PHP
 	find $(PLUGIN)/src $(PLUGIN)/equigov-core.php -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null && echo "PHP ok"

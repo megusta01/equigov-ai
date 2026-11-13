@@ -38,6 +38,7 @@ services:
         define('WP_DEBUG_DISPLAY', false);
         define('DISALLOW_FILE_EDIT', true);
         define('EQUIGOV_AI_SERVICE_URL', '${AI_SERVICE_URL}');
+        define('EQUIGOV_AI_SERVICE_TOKEN', '${AI_SERVICE_TOKEN}');
     volumes:
       - wp_data:/var/www/html
       - wp_logs:/var/log/wordpress
@@ -62,10 +63,35 @@ services:
       retries: 5
     networks: [backend]
 
+  ai-service:
+    build:
+      context: ./ai-service
+      args:
+        DEV: "1"  # inclui pytest/ruff na imagem local; no deploy, DEV=0
+    restart: unless-stopped
+    environment:
+      AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN}
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai_compatible}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.groq.com/openai/v1}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-openai/gpt-oss-120b}
+      RETRIEVAL_MODE: ${RETRIEVAL_MODE:-hybrid}
+      DATA_DIR: /data
+    volumes:
+      - ai_data:/data
+      - ./ai-service/corpus:/corpus:ro
+      - ./ai-service/app:/app/app:ro      # desenvolvimento: código ao vivo (reinicie o container)
+      - ./ai-service/tests:/app/tests:ro
+    # Exposto só no localhost para a documentação interativa (/docs). Em produção, sem porta.
+    ports:
+      - "127.0.0.1:${AI_PORT:-8001}:8000"
+    networks: [backend]
+
 volumes:
   db_data:
   wp_data:
   wp_logs:
+  ai_data:
 
 networks:
   backend:
