@@ -1,0 +1,32 @@
+{
+  "diagnosis": {
+    "id": 42,
+    "score": 81.0,
+    "risk_level": "critical",
+    "findings": [
+      {
+        "question_key": "libras",
+        "question_text": "Como a unidade atende pessoas surdas usuárias de Libras?",
+        "answer": "Não há recurso",
+        "rule": "Opção \"Não há recurso\" tem risco 1.00 (peso 3).",
+        "message": "Sem atendimento em Libras, pessoas surdas dependem de terceiros para acessar o serviço.",
+        "reference": "Lei nº 10.436/2002",
+        "dimension": "comunicacao",
+        "critical": true,
+        "contribution": 15.0
+      },
+      {
+        "question_key": "canais",
+        "question_text": "Por quais canais o principal serviço pode ser solicitado?",
+        "answer": "Somente digital",
+        "rule": "Opção \"Somente digital\" tem risco 0.90 (peso 3).",
+        "message": "Canal exclusivamente digital exclui pessoas sem acesso à internet ou dispositivo.",
+        "dimension": "acesso",
+        "critical": false,
+        "contribution": 13.5
+      }
+    ]
+  },
+  "context": "Prefeitura de município de médio porte, atendimento presencial e digital.",
+  "max_actions": 3
+}
