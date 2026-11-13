@@ -63,6 +63,13 @@ switch ($Task) {
                 sh -c 'composer install --no-interaction --quiet && vendor/bin/phpunit --testdox'
         }
     }
+    'smoke' {
+        # Integração: API real + banco real, dentro do container do WordPress.
+        Invoke-Checked {
+            docker compose exec wordpress wp --allow-root eval-file `
+                wp-content/plugins/equigov-core/tests/smoke/api-smoke.php
+        }
+    }
     'lint' {
         Invoke-Checked {
             docker run --rm -v "${PWD}/${Plugin}:/app" -w /app php:8.3-cli `
@@ -84,6 +91,7 @@ Uso: .\tasks.ps1 <tarefa>
   shell     Shell no container do WordPress
   wp        WP-CLI. Ex: .\tasks.ps1 wp equigov seed
   test      PHPUnit (roda em container)
+  smoke     Teste de integração da API (precisa do install antes)
   lint      Verifica sintaxe PHP (roda em container)
   reset     Apaga TUDO (inclusive o banco)
 '@ | Write-Host
