@@ -19,7 +19,7 @@ achados do diagnóstico ──▶ busca híbrida no acervo ──▶ LLM (format
 | `retrieval/retriever.py` | Fusão BM25 + denso por Reciprocal Rank Fusion; degrada para BM25 se o modelo não carregar |
 | `retrieval/store.py` | SQLite: documentos, trechos, embeddings e cache de planos |
 | `generation/llm.py` | Cliente OpenAI-compatível com timeout, retries limitados (429/5xx/timeout) e `Retry-After`; `FakeLLM` determinístico |
-| `generation/prompts.py` | Prompt versionado (`plan-v1`); trechos tratados como dados, não instruções |
+| `generation/prompts.py` | Prompt versionado (`plan-v2`); trechos tratados como dados, escopo da fonte respeitado, sem números inventados |
 | `generation/verifier.py` | Valida JSON, remove citações inexistentes, exige achado válido e mede suporte textual |
 | `generation/planner.py` | Orquestra recuperação por achado, geração, reparo único de JSON, verificação e cache |
 | `evaluation/` | hit@k e MRR da recuperação sobre casos anotados |
@@ -31,6 +31,24 @@ achados do diagnóstico ──▶ busca híbrida no acervo ──▶ LLM (format
 - **Rastreabilidade.** Cada ação traz os achados (com a regra de pontuação) e as fontes (documento, página, trecho, URL).
 - **Aprovação humana.** `requires_human_approval: true` sempre; o WordPress só publica após aprovação do gestor.
 - **Custo controlado.** Embeddings locais, cache por (prompt, modelo, achados, trechos), limite de tokens de saída e uma única tentativa de reparo.
+
+## Avaliação
+
+Medições sobre o acervo de `corpus/` (6 normas federais, 312 trechos), modo híbrido, em 13/11/2026.
+
+**Recuperação** (`python -m app.cli eval`, 8 casos anotados em `app/evaluation/cases.json`):
+
+| hit@1 | hit@5 | MRR |
+|:-:|:-:|:-:|
+| 0,875 | 0,875 | 0,875 |
+
+**Geração** (`plan-v1`, `openai/gpt-oss-120b` via Groq, diagnóstico de exemplo com 2 achados):
+
+| Ações propostas | Fundamentadas | Citações inválidas | Tokens | Latência |
+|:-:|:-:|:-:|:-:|:-:|
+| 3 | 3 | 0 de 6 | 3.195 | 3,1 s |
+
+**Revisão manual e mudança para `plan-v2`.** A verificação automática aprovou as 3 ações, mas a leitura humana encontrou dois problemas que a sobreposição de termos não detecta: (1) trechos do Decreto nº 5.626/2005 aplicáveis à **saúde e à educação** foram generalizados como válidos para "os serviços públicos"; (2) a ação trazia detalhes ausentes das fontes (carga horária de 40 h). O `plan-v2` passa a exigir que a justificativa respeite o escopo do trecho, que quantidades propostas pelo modelo venham marcadas como "Sugestão:" e que as ações se distribuam entre os achados. O segundo achado (canal exclusivamente digital) não recebeu ação porque o acervo não contém norma sobre o tema: o comportamento correto, já que o modelo não inventou fundamento. A correção é ampliar o acervo, não o código.
 
 ## Endpoints
 
