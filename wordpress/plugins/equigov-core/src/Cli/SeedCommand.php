@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EquiGov\Core\Cli;
 
 use EquiGov\Core\Auth\InstitutionScope;
+use EquiGov\Core\Diagnosis\QuestionnaireImporter;
 use EquiGov\Core\Repositories\InstitutionRepository;
 
 /**
@@ -17,8 +18,10 @@ final class SeedCommand
 {
     private const PASSWORD = 'demo-equigov-2026';
 
-    public function __construct(private readonly InstitutionRepository $institutions)
-    {
+    public function __construct(
+        private readonly InstitutionRepository $institutions,
+        private readonly QuestionnaireImporter $importer,
+    ) {
     }
 
     /** @param string[] $args @param array<string,string> $assoc */
@@ -31,6 +34,11 @@ final class SeedCommand
         $this->user('revisor.a', 'eg_reviewer', $a);
         $this->user('leitor.a', 'eg_reader', $a);
         $this->user('gestor.b', 'eg_manager', $b);
+
+        foreach (glob(dirname(EQUIGOV_CORE_FILE) . '/data/questionnaires/*.json') ?: [] as $file) {
+            $r = $this->importer->import((string) file_get_contents($file));
+            \WP_CLI::log(sprintf('Questionário %s: %s (#%d)', basename($file), $r['action'], $r['id']));
+        }
 
         \WP_CLI::success('Seed concluído. Senha dos usuários de demo: ' . self::PASSWORD);
     }

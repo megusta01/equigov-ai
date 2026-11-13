@@ -96,6 +96,8 @@ final class Registrar
                 '_eg_status'                => ['type' => 'string',  'sanitize' => self::enum(self::DIAGNOSIS_STATUSES, 'draft')],
                 '_eg_score'                 => ['type' => 'number',  'sanitize' => static fn ($v): float => max(0.0, min(100.0, (float) $v))],
                 '_eg_risk_level'            => ['type' => 'string',  'sanitize' => self::enum(self::RISK_LEVELS, 'low')],
+                '_eg_schema_snapshot'       => ['type' => 'string',  'sanitize' => [self::class, 'sanitizeJson']],
+                '_eg_result'                => ['type' => 'string',  'sanitize' => [self::class, 'sanitizeJson']],
             ],
             self::ACTION_PLAN => [
                 InstitutionScope::POST_META => ['type' => 'integer', 'sanitize' => 'absint'],
