@@ -139,7 +139,7 @@ final class DiagnosisService
             'questionnaire_id'      => (int) get_post_meta($post->ID, '_eg_questionnaire_id', true),
             'questionnaire_version' => $schema->version,
             'status'                => $this->status($post),
-            'created_at'            => mysql_to_rfc3339($post->post_date_gmt),
+            'created_at'            => \EquiGov\Core\Support\Time::gmtToIso($post->post_date_gmt),
             'score'                 => $result['score'] ?? null,
             'risk_level'            => $result['risk_level'] ?? null,
         ];
