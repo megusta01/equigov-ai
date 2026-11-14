@@ -468,22 +468,45 @@
         editBox.hidden = fieldset.querySelector('input:checked')?.value !== 'edited';
       });
 
+      // Erros aparecem no próprio cartão: a área de avisos do topo fica fora da vista durante a revisão.
+      const inlineError = h('p', { class: 'eg-inline-error', role: 'alert', hidden: true });
+      const fail = (message) => { inlineError.textContent = message; inlineError.hidden = false; };
+      const unchanged = () => fields.title.value.trim() === o.title && fields.description.value.trim() === o.description
+        && fields.priority.value === o.priority && String(fields.deadline_days.value) === String(o.deadline_days ?? '')
+        && fields.indicator.value.trim() === (o.indicator || '');
+
       form = h('form', { class: 'eg-review', onSubmit: async (ev) => {
         ev.preventDefault();
+        inlineError.hidden = true;
         const chosen = fieldset.querySelector('input:checked');
-        if (!chosen) { notice('Escolha aceitar, editar ou rejeitar.', 'error'); return; }
+        if (!chosen) { fail('Escolha aceitar, aceitar com edição ou rejeitar.'); return; }
+        if (chosen.value === 'edited' && unchanged()) {
+          fail('Para "Aceitar com edição", altere pelo menos um campo. Se a sugestão está boa como está, escolha "Aceitar".');
+          return;
+        }
+        if (chosen.value === 'rejected' && note.value.trim().length < 5) {
+          fail('Para rejeitar, explique o motivo na observação.');
+          note.focus();
+          return;
+        }
         const body = { decision: chosen.value, note: note.value.trim() };
         if (chosen.value === 'edited') {
           Object.entries(fields).forEach(([k, el]) => { body[k] = k === 'deadline_days' ? (el.value ? Number(el.value) : undefined) : el.value; });
         }
         const done = busy(save, 'Registrando…');
-        try { await api('PATCH', `/action-plans/${plan.id}/items/${item.id}`, body); notice('Decisão registrada.', 'success'); await route(); }
-        catch (e) { notice(e.message, 'error'); done(); }
+        try {
+          await api('PATCH', `/action-plans/${plan.id}/items/${item.id}`, body);
+          live.textContent = 'Decisão registrada.';
+          await route();
+          // Mantém o revisor no cartão que acabou de decidir, em vez de voltar ao topo.
+          document.getElementById(`eg-item-${plan.id}-${item.id}`)?.closest('article')?.scrollIntoView({ block: 'start' });
+        } catch (e) { fail(e.message); done(); }
       } },
         fieldset,
         vstatus === 'weak' ? h('p', { class: 'eg-warning', text: 'Suporte fraco nas fontes: para aceitar, justifique na observação.' }) : null,
         editBox,
         h('p', {}, h('label', { for: note.id, text: 'Observação (obrigatória para rejeitar)' }), h('br'), note),
+        inlineError,
         save);
     }
 

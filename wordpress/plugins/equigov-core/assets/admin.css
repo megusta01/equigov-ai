@@ -53,3 +53,4 @@
 .eg-ai-meta { font-size: 12px; }
 /* <meter>: verde = pouco risco, amarelo = moderado, vermelho = alto (low/high/optimum no admin.js) */
 .eg-dims meter { height: 12px; }
+.eg-inline-error { color: #8a2424; font-weight: 600; margin: 8px 0; }
