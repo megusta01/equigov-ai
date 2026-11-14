@@ -3,6 +3,8 @@ name = "equigov-ai-service"
 version = "0.1.0"
 description = "Serviço de IA do EquiGov: ingestão, busca híbrida e planos de ação fundamentados"
 requires-python = ">=3.11"
+license = "GPL-2.0-or-later"
+authors = [{ name = "Gustavo Figueredo" }]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
