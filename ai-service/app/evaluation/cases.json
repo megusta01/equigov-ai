@@ -3,11 +3,24 @@
   "cases": [
     { "query": "intérprete de Libras no atendimento a pessoas surdas", "expected_documents": ["10.436", "5.626"] },
     { "query": "formação de servidores para o uso e a interpretação da Libras", "expected_documents": ["5.626"] },
+    { "query": "Libras reconhecida como meio legal de comunicação e expressão", "expected_documents": ["10.436"] },
+    { "query": "atendimento a pessoas surdas na rede de serviços do SUS", "expected_documents": ["5.626"] },
     { "query": "atendimento prioritário a idosos, gestantes e pessoas com deficiência", "expected_documents": ["10.048"] },
+    { "query": "atendimento prioritário em instituições financeiras e repartições públicas", "expected_documents": ["10.048"] },
     { "query": "acessibilidade nos sítios da internet mantidos por órgãos de governo", "expected_documents": ["13.146"] },
     { "query": "barreiras arquitetônicas em edificações de uso público", "expected_documents": ["13.146"] },
+    { "query": "tecnologia assistiva para pessoas com deficiência", "expected_documents": ["13.146"] },
+    { "query": "acessibilidade no transporte coletivo", "expected_documents": ["13.146"] },
     { "query": "manifestação do usuário à ouvidoria e prazo de resposta", "expected_documents": ["13.460"] },
     { "query": "linguagem simples e compreensível no atendimento ao usuário do serviço público", "expected_documents": ["13.460"] },
-    { "query": "igualdade de oportunidades e combate à discriminação étnico-racial", "expected_documents": ["12.288"] }
+    { "query": "carta de serviços ao usuário", "expected_documents": ["13.460"] },
+    { "query": "conselho de usuários e avaliação continuada dos serviços públicos", "expected_documents": ["13.460"] },
+    { "query": "igualdade de oportunidades e combate à discriminação étnico-racial", "expected_documents": ["12.288"] },
+    { "query": "ações afirmativas para a população negra", "expected_documents": ["12.288"] },
+    { "query": "saúde da população negra", "expected_documents": ["12.288"] },
+    { "query": "comunidades remanescentes de quilombos e acesso à terra", "expected_documents": ["12.288"] },
+    { "query": "liberdade de crença e religiões de matriz africana", "expected_documents": ["12.288"] },
+    { "query": "Sistema Nacional de Promoção da Igualdade Racial", "expected_documents": ["12.288"] },
+    { "query": "inclusão da população negra no mercado de trabalho", "expected_documents": ["12.288"] }
   ]
 }
