@@ -1,0 +1,13 @@
+# Regras padrão do gitleaks + exceções para valores que NÃO são segredos:
+# tokens fixos usados só em testes/CI e a senha dos usuários de demonstração do seed.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Valores de teste e demonstração"
+regexes = [
+  '''ci-token-0123456789abcdef''',
+  '''test-token-0123456789''',
+  '''demo-equigov-2026''',
+  '''troque-por-um-token-longo-e-aleatorio''',
+]
