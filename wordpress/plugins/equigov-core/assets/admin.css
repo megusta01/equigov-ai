@@ -1,0 +1,53 @@
+/* EquiGov — painel. Contrastes ≥ 4,5:1 (WCAG AA) e foco sempre visível. */
+
+.equigov { max-width: 1200px; }
+.equigov h2 { font-size: 1.6em; margin: .4em 0; }
+.equigov :focus-visible { outline: 3px solid #2271b1; outline-offset: 2px; }
+
+.eg-card { background: #fff; border: 1px solid #c3c4c7; border-radius: 4px; padding: 12px 16px; margin: 12px 0; }
+.eg-muted { color: #50575e; }
+.eg-warning { color: #8a2424; font-weight: 600; }
+.eg-actions { position: sticky; bottom: 0; background: #f0f0f1; padding: 12px 0; }
+
+.eg-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; background: #dcdcde; color: #1d2327; }
+.eg-risk-low { background: #d1e7dd; color: #0f5132; }
+.eg-risk-moderate { background: #fff3cd; color: #664d03; }
+.eg-risk-high { background: #ffe5d0; color: #7a3300; }
+.eg-risk-critical { background: #f8d7da; color: #721c24; }
+.eg-status-approved, .eg-decision-accepted, .eg-verification-grounded { background: #d1e7dd; color: #0f5132; }
+.eg-status-rejected, .eg-decision-rejected { background: #f8d7da; color: #721c24; }
+.eg-status-reviewed, .eg-decision-edited { background: #cfe2ff; color: #084298; }
+.eg-verification-weak { background: #fff3cd; color: #664d03; }
+.eg-priority-alta { background: #f8d7da; color: #721c24; }
+
+.eg-question { border: 0; margin: 0 0 16px; padding: 0; }
+.eg-question legend { font-weight: 600; margin-bottom: 4px; }
+.eg-question.eg-missing legend { color: #8a2424; }
+.eg-question.eg-missing legend::after { content: " — obrigatória"; }
+.eg-options { margin: 4px 0 0; }
+.eg-options li { margin: 4px 0; }
+.eg-progress { font-weight: 600; }
+
+.eg-score { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+.eg-score-value { font-size: 2.6em; font-weight: 700; margin: 0; }
+.eg-dims caption { text-align: left; font-weight: 600; padding: 8px 0; }
+.eg-dims meter { width: 160px; vertical-align: middle; }
+.eg-findings { padding-left: 1.2em; }
+
+.eg-item header h4 { margin: 0 0 6px; font-size: 1.15em; }
+.eg-item-rejected { opacity: .85; }
+.eg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+@media (max-width: 960px) { .eg-grid { grid-template-columns: 1fr; } }
+.eg-suggestion dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; }
+.eg-suggestion dt { font-weight: 600; }
+.eg-suggestion dd { margin: 0; }
+.eg-sources h5, .eg-suggestion h5 { margin: 0 0 8px; text-transform: uppercase; font-size: 11px; letter-spacing: .04em; color: #50575e; }
+.eg-source { margin: 0 0 12px; }
+.eg-source blockquote { margin: 0; padding: 8px 12px; background: #f6f7f7; border-left: 4px solid #2271b1; font-family: Georgia, serif; line-height: 1.5; }
+.eg-source figcaption { font-size: 12px; color: #50575e; margin-top: 4px; }
+.eg-decision { margin-top: 8px; padding: 8px 12px; border-radius: 4px; }
+.eg-review { border-top: 1px solid #dcdcde; margin-top: 12px; padding-top: 8px; }
+.eg-review fieldset { border: 0; padding: 0; margin: 0 0 8px; }
+.eg-review legend { font-weight: 600; }
+.eg-radio { margin-right: 16px; }
+.eg-ai-meta { font-size: 12px; }
