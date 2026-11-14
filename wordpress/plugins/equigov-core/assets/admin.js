@@ -42,6 +42,9 @@
     return el;
   }
 
+  /** append() que ignora vazios: o DOM transformaria null em texto "null". */
+  const add = (parent, ...nodes) => parent.append(...nodes.flat(Infinity).filter((n) => n !== null && n !== undefined && n !== false));
+
   const badge = (value, kind) => h('span', { class: `eg-badge eg-${kind || 'status'}-${value}` }, label(value));
 
   async function api(method, path, body) {
@@ -296,7 +299,7 @@
           location.hash = `#/p/${plan.id}`;
         } catch (e) {
           notice(e.message, 'error');
-          if (e.code === 'eg_plan_open' && e.data.plan_id) noticeBox.append(h('p', {}, h('a', { href: `#/p/${e.data.plan_id}`, text: 'Abrir o plano em revisão' })));
+          if (e.code === 'eg_plan_open' && e.data.plan_id) add(noticeBox, h('p', {}, h('a', { href: `#/p/${e.data.plan_id}`, text: 'Abrir o plano em revisão' })));
           done();
         }
       } },
@@ -349,7 +352,7 @@
         try { await api('POST', `/action-plans/${p.id}/complete-review`); notice('Revisão concluída. Outro gestor deve aprovar.', 'success'); await route(); }
         catch (e) { notice(e.message, 'error'); done(); }
       });
-      footer.append(h('p', { text: 'Decida cada sugestão e conclua a revisão. A aprovação final é feita por outra pessoa.' }), b);
+      add(footer, h('p', { text: 'Decida cada sugestão e conclua a revisão. A aprovação final é feita por outra pessoa.' }), b);
     }
     if (C.canApprove && p.status === 'reviewed') {
       // Espelha a regra do servidor: quem concluiu a revisão ou decidiu qualquer item não aprova.
@@ -367,7 +370,7 @@
         try { await api('POST', `/action-plans/${p.id}/reject`, { reason: reason.value }); notice('Plano rejeitado.', 'success'); await route(); }
         catch (e) { notice(e.message, 'error'); done(); }
       });
-      footer.append(
+      add(footer, 
         h('p', { text: `Revisado por ${p.reviewed_by?.name || '—'}.` }),
         sameReviewer ? h('p', { class: 'eg-warning', text: 'Você participou da revisão deste plano e por isso não pode aprová-lo (separação de funções).' }) : null,
         approve,
@@ -376,7 +379,7 @@
       );
     }
     if (p.status === 'approved') {
-      footer.append(
+      add(footer, 
         h('h3', { text: 'Plano aprovado' }),
         h('p', { text: `Revisado por ${p.reviewed_by?.name || '—'} · aprovado por ${p.approved_by?.name || '—'} em ${fmtDate(p.decided_at)}` }),
         h('table', { class: 'widefat striped' },
@@ -390,7 +393,7 @@
           )))));
     }
     if (p.status === 'rejected') {
-      footer.append(h('h3', { text: 'Plano rejeitado' }), h('p', { text: p.rejection_reason }), h('p', { class: 'eg-muted', text: `por ${p.approved_by?.name || '—'} em ${fmtDate(p.decided_at)}` }));
+      add(footer, h('h3', { text: 'Plano rejeitado' }), h('p', { text: p.rejection_reason }), h('p', { class: 'eg-muted', text: `por ${p.approved_by?.name || '—'} em ${fmtDate(p.decided_at)}` }));
     }
 
     render(

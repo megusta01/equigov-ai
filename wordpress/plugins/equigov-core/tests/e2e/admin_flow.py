@@ -101,6 +101,8 @@ def main() -> int:
         # 4. Gestora aprova
         login(page, "gestora.a")
         page.goto(plan_url)
+        # Regressão: valores vazios já apareceram na tela como o texto "null".
+        expect(page.locator("#equigov-app")).not_to_contain_text("null")
         page.get_by_role("button", name="Aprovar plano").click()
         expect(page.get_by_role("heading", name="Plano aprovado")).to_be_visible()
         expect(page.locator(".eg-footer table").get_by_text("Central municipal de interpretação em Libras")).to_be_visible()
