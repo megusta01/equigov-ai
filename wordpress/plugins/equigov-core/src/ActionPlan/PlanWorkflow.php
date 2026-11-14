@@ -16,7 +16,7 @@ use EquiGov\Core\Support\DomainError;
  *  - nenhuma sugestão da IA vira plano sem decisão humana item a item;
  *  - o texto original da IA nunca é sobrescrito: edições ficam em "final";
  *  - sugestão com suporte fraco só pode ser aceita com justificativa do revisor;
- *  - separação de funções: quem concluiu a revisão não pode aprovar.
+ *  - separação de funções: quem concluiu a revisão OU decidiu qualquer item não pode aprovar.
  */
 final class PlanWorkflow
 {
@@ -26,6 +26,8 @@ final class PlanWorkflow
     public const APPROVED  = 'approved';
     public const REJECTED  = 'rejected';
     public const STATUSES  = [self::PENDING, self::IN_REVIEW, self::REVIEWED, self::APPROVED, self::REJECTED];
+    /** Estados em que o plano ainda não foi finalizado: bloqueiam a geração de outro plano. */
+    public const OPEN      = [self::PENDING, self::IN_REVIEW, self::REVIEWED];
 
     public const DECISIONS  = ['accepted', 'edited', 'rejected'];
     public const PRIORITIES = ['alta', 'media', 'baixa'];
@@ -130,15 +132,30 @@ final class PlanWorkflow
         return self::REVIEWED;
     }
 
-    public static function approve(string $status, int $reviewerId, int $approverId): string
+    /** @param list<array<string,mixed>> $items */
+    public static function approve(string $status, int $reviewerId, int $approverId, array $items = []): string
     {
         if ($status !== self::REVIEWED) {
             throw new DomainError('eg_plan_not_reviewed', 'Só é possível aprovar um plano com revisão concluída.', 409);
         }
-        if ($reviewerId === $approverId) {
-            throw new DomainError('eg_segregation', 'Quem revisou o plano não pode aprová-lo (separação de funções).', 403);
+        if (in_array($approverId, self::participants($reviewerId, $items), true)) {
+            throw new DomainError('eg_segregation', 'Quem participou da revisão do plano não pode aprová-lo (separação de funções).', 403);
         }
         return self::APPROVED;
+    }
+
+    /**
+     * Todos que atuaram na revisão: quem concluiu e quem decidiu qualquer item.
+     * @param list<array<string,mixed>> $items
+     * @return list<int>
+     */
+    public static function participants(int $reviewerId, array $items): array
+    {
+        $ids = array_map('intval', array_filter(array_column($items, 'decided_by')));
+        if ($reviewerId > 0) {
+            $ids[] = $reviewerId;
+        }
+        return array_values(array_unique($ids));
     }
 
     public static function reject(string $status, string $reason): string

@@ -10,6 +10,7 @@ use EquiGov\Core\Auth\InstitutionScope;
 use EquiGov\Core\Diagnosis\DiagnosisService;
 use EquiGov\Core\PostTypes\Registrar;
 use EquiGov\Core\Support\DomainError;
+use EquiGov\Core\Support\PiiRedactor;
 
 /**
  * Casos de uso do plano de ação. Cadeia de rastreabilidade gravada no plano:
@@ -22,6 +23,7 @@ final class ActionPlanService
         private readonly DiagnosisService $diagnoses,
         private readonly AiClient $ai,
         private readonly AuditLogger $audit,
+        private readonly \wpdb $db,
     ) {
     }
 
@@ -29,11 +31,31 @@ final class ActionPlanService
     {
         $report = $this->diagnoses->report($diagnosisId); // exige diagnóstico concluído
 
+        // Trava por diagnóstico no MariaDB: sem ela, duas requisições simultâneas passariam juntas
+        // pela checagem de "plano aberto" abaixo e gerariam dois planos (e duas chamadas ao LLM).
+        $lock = 'equigov_plan_' . $diagnosisId;
+        if ((int) $this->db->get_var($this->db->prepare('SELECT GET_LOCK(%s, 0)', $lock)) !== 1) {
+            throw new DomainError('eg_plan_busy', 'Já há uma geração de plano em andamento para este diagnóstico.', 409);
+        }
+        try {
+            return $this->generateLocked($diagnosisId, $userId, $report, $context, $maxActions);
+        } finally {
+            $this->db->query($this->db->prepare('SELECT RELEASE_LOCK(%s)', $lock));
+        }
+    }
+
+    /** @param array<string,mixed> $report */
+    private function generateLocked(int $diagnosisId, int $userId, array $report, ?string $context, int $maxActions): int
+    {
         foreach ($this->forDiagnosis($diagnosisId) as $plan) {
-            if (in_array($plan['status'], [PlanWorkflow::PENDING, PlanWorkflow::IN_REVIEW], true)) {
-                throw new DomainError('eg_plan_open', 'Já existe um plano em revisão para este diagnóstico. Conclua ou rejeite antes de gerar outro.', 409, ['plan_id' => $plan['id']]);
+            if (in_array($plan['status'], PlanWorkflow::OPEN, true)) {
+                throw new DomainError('eg_plan_open', 'Já existe um plano não finalizado para este diagnóstico. Aprove ou rejeite antes de gerar outro.', 409, ['plan_id' => $plan['id']]);
             }
         }
+
+        // O contexto é texto livre e vai ao provedor externo: removemos padrões de dado pessoal.
+        $redacted = PiiRedactor::redact((string) $context);
+        $context  = $redacted['text'];
 
         $ai = $this->ai->generatePlan($this->payload($diagnosisId, $report), $context, $maxActions);
 
@@ -67,6 +89,7 @@ final class ActionPlanService
             'usage'          => $meta['usage'] ?? null,
             'latency_ms'     => $meta['latency_ms'] ?? null,
             'cache_hit'      => $meta['cache_hit'] ?? null,
+            'context_redactions' => $redacted['count'],
         ]);
         return $id;
     }
@@ -153,7 +176,7 @@ final class ActionPlanService
     public function approve(int $planId, int $userId): void
     {
         $this->load($planId);
-        $status = PlanWorkflow::approve($this->status($planId), (int) get_post_meta($planId, '_eg_reviewed_by', true), $userId);
+        $status = PlanWorkflow::approve($this->status($planId), (int) get_post_meta($planId, '_eg_reviewed_by', true), $userId, $this->items($planId));
         update_post_meta($planId, '_eg_plan_status', $status);
         update_post_meta($planId, '_eg_approved_by', $userId);
         update_post_meta($planId, '_eg_decided_at', gmdate('c'));

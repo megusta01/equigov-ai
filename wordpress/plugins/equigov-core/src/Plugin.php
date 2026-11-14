@@ -48,7 +48,7 @@ final class Plugin
         $audit        = new AuditLogger($wpdb);
         $scope        = new InstitutionScope();
         $diagnoses    = new DiagnosisService($responses, $audit);
-        $plans        = new ActionPlanService($diagnoses, AiClient::fromConfig(), $audit);
+        $plans        = new ActionPlanService($diagnoses, AiClient::fromConfig(), $audit, $wpdb);
 
         Installer::maybeUpgrade();
 

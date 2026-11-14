@@ -116,6 +116,25 @@ final class PlanWorkflowTest extends TestCase
         self::assertSame(W::APPROVED, W::approve(W::REVIEWED, 7, 8));
     }
 
+    public function testWhoeverDecidedAnyItemCannotApprove(): void
+    {
+        // Pessoa 9 decidiu um item; pessoa 7 decidiu o outro e concluiu a revisão.
+        $r = W::decide($this->items(), W::PENDING, 'a1', 'accepted', [], '', 9, self::NOW);
+        $r = W::decide($r['items'], $r['status'], 'a2', 'rejected', [], 'Sem base legal.', 7, self::NOW);
+
+        self::assertSame('eg_segregation', $this->code(fn () => W::approve(W::REVIEWED, 7, 9, $r['items'])));
+        self::assertSame('eg_segregation', $this->code(fn () => W::approve(W::REVIEWED, 7, 7, $r['items'])));
+        self::assertSame(W::APPROVED, W::approve(W::REVIEWED, 7, 8, $r['items']));
+        self::assertSame([9, 7], W::participants(7, $r['items']));
+    }
+
+    public function testReviewedPlanIsStillOpen(): void
+    {
+        self::assertContains(W::REVIEWED, W::OPEN);
+        self::assertNotContains(W::APPROVED, W::OPEN);
+        self::assertNotContains(W::REJECTED, W::OPEN);
+    }
+
     public function testRejectPlan(): void
     {
         self::assertSame('eg_reason_required', $this->code(fn () => W::reject(W::REVIEWED, 'não')));
