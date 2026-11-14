@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       EquiGov Core
  * Description:       Diagnóstico institucional, planos de ação e rastreabilidade de recomendações para políticas públicas inclusivas.
- * Version:           0.1.0
+ * Version:           0.2.0
  * Requires at least: 6.4
  * Requires PHP:      8.2
  * Author:            Gustavo Figueredo
@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 defined('ABSPATH') || exit;
 
-const EQUIGOV_CORE_VERSION = '0.1.0';
+const EQUIGOV_CORE_VERSION = '0.2.0';
 const EQUIGOV_CORE_FILE    = __FILE__;
 
 // Composer quando disponível; senão, autoloader PSR-4 mínimo.

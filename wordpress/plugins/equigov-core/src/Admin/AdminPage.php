@@ -19,6 +19,10 @@ final class AdminPage
     {
         add_action('admin_menu', [$this, 'menu']);
         add_action('admin_enqueue_scripts', [$this, 'assets']);
+        // Na tela EquiGov, sem o aviso de atualização do WordPress: ele é para administradores, não para gestores.
+        add_action('load-toplevel_page_' . self::SLUG, static function (): void {
+            remove_action('admin_notices', 'update_nag', 3);
+        });
     }
 
     public function menu(): void

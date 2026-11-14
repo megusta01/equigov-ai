@@ -268,7 +268,7 @@
       h('thead', {}, h('tr', {}, h('th', { scope: 'col', text: 'Dimensão' }), h('th', { scope: 'col', text: 'Nota' }))),
       h('tbody', {}, Object.values(report.dimensions).map((dim) => h('tr', {},
         h('th', { scope: 'row', text: dim.label }),
-        h('td', {}, dim.score === null ? 'não avaliada' : h('span', {}, h('meter', { min: '0', max: '100', value: dim.score, 'aria-hidden': 'true' }), ` ${dim.score}`)),
+        h('td', {}, dim.score === null ? 'não avaliada' : h('span', {}, h('meter', { min: '0', max: '100', low: '25', high: '50', optimum: '0', value: dim.score, 'aria-hidden': 'true' }), ` ${dim.score}`)),
       ))));
 
     const findings = h('ol', { class: 'eg-findings' }, report.findings.map((f) => h('li', { class: 'eg-card' },
