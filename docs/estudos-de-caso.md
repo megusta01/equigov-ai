@@ -1,6 +1,6 @@
 # Estudos de caso: falhas reais, causas e correções
 
-Falhas encontradas durante o desenvolvimento, todas com teste de regressão. Ficam registradas porque mostram como o sistema foi validado, e não só construído.
+Falhas encontradas durante o desenvolvimento; quase todas ganharam teste de regressão automatizado (a do Nginx foi verificada com `curl -I`). Ficam registradas porque mostram como o sistema foi validado, e não só construído.
 
 ## 1. Servidor de IA não enxergava documentos recém-ingeridos
 
@@ -75,3 +75,13 @@ Falhas encontradas durante o desenvolvimento, todas com teste de regressão. Fic
 | A documentação dizia que nenhum dado pessoal ia para a IA, mas o contexto é texto livre | Promessa maior que o código | `PiiRedactor` (CPF, CNPJ, e-mail, telefone), aviso na tela e documentação corrigida | `PiiRedactorTest` |
 
 **Lição.** Regras de controle (quem pode aprovar, quando um processo está aberto) precisam ser pensadas pelos papéis reais das pessoas, não só pelo caminho feliz. E a documentação de privacidade deve prometer exatamente o que o código garante.
+
+## 8. `/wp-admin` com "conexão recusada", embora o site respondesse
+
+**Sintoma.** `http://localhost:8080/wp-json/...` e `http://localhost:8080/wp-login.php` funcionavam, mas `http://localhost:8080/wp-admin` dava `ERR_CONNECTION_REFUSED`. `siteurl` e `home` estavam corretos.
+
+**Investigação.** O que diferencia as URLs é que `/wp-admin` é uma pasta pedida sem barra final: quem responde é o Nginx, não o WordPress, com um redirecionamento 301 para `/wp-admin/`. O Nginx monta esse endereço com a porta em que **ele** escuta, que é a 80 dentro do container, e não a 8080 publicada pelo Docker. O navegador era mandado para `http://localhost/wp-admin/`, onde não há nada escutando.
+
+**Correção.** `absolute_redirect off;` no `server` do Nginx: o redirecionamento passa a ser relativo (`Location: /wp-admin/`) e funciona em qualquer porta ou proxy. Verificado com `curl -I` antes e depois da mudança.
+
+**Lição.** Atrás de mapeamento de portas ou de proxy reverso, quem gera URLs absolutas precisa saber o endereço público. Redirecionamentos relativos evitam a dependência.
