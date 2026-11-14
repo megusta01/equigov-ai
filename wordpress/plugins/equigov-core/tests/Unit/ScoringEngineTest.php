@@ -64,9 +64,18 @@ final class ScoringEngineTest extends TestCase
         self::assertFalse($r->dimensions['b']['answered']);
     }
 
-    public function testShippedQuestionnaireWorstCase(): void
+    /** @return iterable<string, array{string}> */
+    public static function shipped(): iterable
     {
-        $schema = QuestionnaireSchema::fromJson((string) file_get_contents(Fixtures::SHIPPED));
+        foreach (glob(dirname(Fixtures::SHIPPED) . '/*.json') ?: [] as $file) {
+            yield basename($file) => [$file];
+        }
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('shipped')]
+    public function testShippedQuestionnaireWorstCase(string $file): void
+    {
+        $schema = QuestionnaireSchema::fromJson((string) file_get_contents($file));
         $worst  = [];
         foreach ($schema->questions as $q) {
             if ($q->isMulti()) {

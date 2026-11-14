@@ -1,0 +1,192 @@
+{
+  "key": "igualdade_racial",
+  "version": 1,
+  "title": "Diagnóstico de maturidade institucional em igualdade racial",
+  "dimensions": {
+    "dados": "Dados e monitoramento racial",
+    "governanca": "Compromisso e governança",
+    "atendimento": "Atendimento e enfrentamento do racismo institucional",
+    "pessoas": "Gestão de pessoas e formação",
+    "participacao": "Participação e transparência"
+  },
+  "questions": [
+    {
+      "key": "quesito_raca_cor",
+      "dimension": "dados",
+      "type": "single_choice",
+      "weight": 3,
+      "text": "Os registros de atendimento do serviço incluem o quesito raça/cor?",
+      "options": [
+        { "value": "autodeclaracao", "label": "Sim, por autodeclaração da pessoa atendida", "risk": 0.0 },
+        { "value": "heteroatribuicao", "label": "Sim, mas preenchido pelo atendente", "risk": 0.6,
+          "finding": "Raça/cor atribuída pelo atendente distorce os dados e desrespeita a identidade declarada pela pessoa." },
+        { "value": "parcial", "label": "Só em alguns registros ou unidades", "risk": 0.5,
+          "finding": "Coleta parcial impede comparar o atendimento entre grupos raciais no serviço como um todo." },
+        { "value": "nao", "label": "Não", "risk": 1.0,
+          "finding": "Sem o quesito raça/cor, a instituição não consegue verificar se o serviço reproduz desigualdades raciais.",
+          "reference": "Lei nº 12.288/2010 (Estatuto da Igualdade Racial)" }
+      ]
+    },
+    {
+      "key": "preenchimento",
+      "dimension": "dados",
+      "type": "single_choice",
+      "weight": 2,
+      "text": "Em que proporção dos registros o campo raça/cor está preenchido?",
+      "show_if": { "question": "quesito_raca_cor", "op": "not_equals", "value": "nao" },
+      "options": [
+        { "value": "alta", "label": "Mais de 90%", "risk": 0.0 },
+        { "value": "media", "label": "Entre 50% e 90%", "risk": 0.4,
+          "finding": "Lacunas de preenchimento enviesam as comparações entre grupos raciais." },
+        { "value": "baixa", "label": "Menos de 50%", "risk": 0.8,
+          "finding": "Com menos da metade dos registros preenchidos, os dados raciais não sustentam análises." },
+        { "value": "desconhecida", "label": "Não sabemos", "risk": 0.7,
+          "finding": "A instituição não monitora a qualidade do próprio dado racial." }
+      ]
+    },
+    {
+      "key": "analise_desigualdade",
+      "dimension": "dados",
+      "type": "single_choice",
+      "weight": 3,
+      "text": "Indicadores do serviço (tempo de espera, taxa de resolução, negativas, reclamações) são comparados por raça/cor?",
+      "show_if": { "question": "quesito_raca_cor", "op": "not_equals", "value": "nao" },
+      "options": [
+        { "value": "periodica", "label": "Sim, periodicamente, com relatório", "risk": 0.0 },
+        { "value": "eventual", "label": "Eventualmente", "risk": 0.5,
+          "finding": "Análise eventual não permite acompanhar se as diferenças raciais no serviço estão diminuindo." },
+        { "value": "nunca", "label": "Nunca", "risk": 0.9,
+          "finding": "Dados raciais coletados e não analisados não orientam nenhuma decisão." }
+      ]
+    },
+    {
+      "key": "instancia_responsavel",
+      "dimension": "governanca",
+      "type": "single_choice",
+      "weight": 2,
+      "text": "Existe instância responsável pela promoção da igualdade racial (comitê, núcleo ou assessoria) com atribuições formais?",
+      "options": [
+        { "value": "formal", "label": "Sim, instituída formalmente", "risk": 0.0 },
+        { "value": "informal", "label": "Existe, mas sem ato formal ou atribuições definidas", "risk": 0.5,
+          "finding": "Sem atribuições formais, a agenda de igualdade racial depende de pessoas e se perde com mudanças de gestão." },
+        { "value": "nao", "label": "Não existe", "risk": 0.9,
+          "finding": "Sem instância responsável, ninguém responde pela agenda de igualdade racial na instituição.",
+          "reference": "Lei nº 12.288/2010 (Estatuto da Igualdade Racial)" }
+      ]
+    },
+    {
+      "key": "plano_metas",
+      "dimension": "governanca",
+      "type": "single_choice",
+      "weight": 2,
+      "text": "A instituição tem plano ou metas de igualdade racial com prazos, responsáveis e orçamento?",
+      "options": [
+        { "value": "com_orcamento", "label": "Sim, com orçamento previsto", "risk": 0.0 },
+        { "value": "sem_orcamento", "label": "Sim, mas sem orçamento", "risk": 0.5,
+          "finding": "Metas sem orçamento tendem a não sair do papel." },
+        { "value": "nao", "label": "Não", "risk": 0.9,
+          "finding": "Sem metas, não há como cobrar nem medir avanço em igualdade racial." }
+      ]
+    },
+    {
+      "key": "protocolo_discriminacao",
+      "dimension": "atendimento",
+      "type": "single_choice",
+      "weight": 3,
+      "text": "Existe protocolo para receber, apurar e responder relatos de discriminação racial no atendimento?",
+      "options": [
+        { "value": "especifico", "label": "Sim, específico, com prazos e responsáveis", "risk": 0.0 },
+        { "value": "generico", "label": "Apenas o canal geral de reclamações", "risk": 0.5,
+          "finding": "No canal geral, relatos de discriminação racial se diluem e não geram indicador nem correção." },
+        { "value": "nao", "label": "Não existe", "risk": 1.0, "critical": true,
+          "finding": "Sem protocolo, casos de discriminação racial no atendimento não são apurados nem corrigidos.",
+          "reference": "Lei nº 12.288/2010 (Estatuto da Igualdade Racial)" }
+      ]
+    },
+    {
+      "key": "revisao_criterios",
+      "dimension": "atendimento",
+      "type": "single_choice",
+      "weight": 2,
+      "text": "Critérios de acesso, triagem e abordagem do serviço já foram revisados para identificar efeitos desiguais por raça/cor?",
+      "options": [
+        { "value": "sim", "label": "Sim, com revisão documentada", "risk": 0.0 },
+        { "value": "parcial", "label": "Parcialmente", "risk": 0.5,
+          "finding": "Critérios aparentemente neutros podem produzir efeitos desiguais por raça/cor quando não são revisados." },
+        { "value": "nunca", "label": "Nunca", "risk": 0.9,
+          "finding": "Sem revisão dos critérios, a instituição pode reproduzir racismo institucional sem perceber." }
+      ]
+    },
+    {
+      "key": "formacao",
+      "dimension": "pessoas",
+      "type": "single_choice",
+      "weight": 2,
+      "text": "A equipe recebe formação sobre igualdade racial e atendimento antirracista?",
+      "options": [
+        { "value": "continua", "label": "Sim, de forma contínua", "risk": 0.0 },
+        { "value": "pontual", "label": "Já houve, sem continuidade", "risk": 0.5,
+          "finding": "Formação pontual se perde com a rotatividade da equipe." },
+        { "value": "nunca", "label": "Nunca", "risk": 0.9,
+          "finding": "Sem formação, práticas discriminatórias tendem a se repetir sem que a equipe as reconheça." }
+      ]
+    },
+    {
+      "key": "publicos_formacao",
+      "dimension": "pessoas",
+      "type": "multi_choice",
+      "weight": 2,
+      "text": "Quais públicos participam dessa formação?",
+      "show_if": { "question": "formacao", "op": "in", "value": ["continua", "pontual"] },
+      "finding": "Públicos não alcançados pela formação",
+      "options": [
+        { "value": "linha_frente", "label": "Atendimento ao público" },
+        { "value": "chefias", "label": "Chefias e gestores" },
+        { "value": "gestao_pessoas", "label": "Gestão de pessoas" },
+        { "value": "ouvidoria", "label": "Ouvidoria" },
+        { "value": "seguranca", "label": "Segurança e vigilância" }
+      ]
+    },
+    {
+      "key": "composicao_quadro",
+      "dimension": "pessoas",
+      "type": "single_choice",
+      "weight": 1,
+      "text": "A instituição acompanha a composição racial do quadro de pessoal e das funções de liderança?",
+      "options": [
+        { "value": "com_metas", "label": "Sim, com metas", "risk": 0.0 },
+        { "value": "sem_metas", "label": "Sim, sem metas", "risk": 0.4,
+          "finding": "Acompanhar sem metas mostra o problema, mas não orienta a mudança." },
+        { "value": "nao", "label": "Não", "risk": 0.8,
+          "finding": "Sem esse acompanhamento, desigualdades raciais no acesso a cargos de liderança ficam invisíveis." }
+      ]
+    },
+    {
+      "key": "escuta_grupos",
+      "dimension": "participacao",
+      "type": "single_choice",
+      "weight": 2,
+      "text": "Grupos afetados por desigualdades raciais (organizações do movimento negro, comunidades quilombolas, povos de terreiro, povos indígenas) são ouvidos no planejamento ou na avaliação do serviço?",
+      "options": [
+        { "value": "regular", "label": "Sim, regularmente", "risk": 0.0 },
+        { "value": "eventual", "label": "Eventualmente", "risk": 0.5,
+          "finding": "Escuta eventual não garante que a experiência desses grupos influencie as decisões." },
+        { "value": "nunca", "label": "Nunca", "risk": 0.9,
+          "finding": "Sem escuta, as barreiras são avaliadas apenas do ponto de vista de quem presta o serviço." }
+      ]
+    },
+    {
+      "key": "transparencia",
+      "dimension": "participacao",
+      "type": "single_choice",
+      "weight": 1,
+      "required": false,
+      "text": "Indicadores do serviço desagregados por raça/cor são divulgados ao público?",
+      "options": [
+        { "value": "sim", "label": "Sim", "risk": 0.0 },
+        { "value": "nao", "label": "Não", "risk": 0.7,
+          "finding": "Sem divulgação, a sociedade não consegue acompanhar nem cobrar resultados em igualdade racial." }
+      ]
+    }
+  ]
+}

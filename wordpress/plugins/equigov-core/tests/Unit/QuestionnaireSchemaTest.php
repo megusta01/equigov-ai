@@ -18,6 +18,16 @@ final class QuestionnaireSchemaTest extends TestCase
         self::assertSame(1, $schema->version);
     }
 
+    public function testEveryShippedQuestionnaireIsValid(): void
+    {
+        $files = glob(dirname(Fixtures::SHIPPED) . '/*.json') ?: [];
+        self::assertGreaterThanOrEqual(2, count($files));
+        foreach ($files as $file) {
+            $schema = QuestionnaireSchema::fromJson((string) file_get_contents($file));
+            self::assertGreaterThanOrEqual(10, count($schema->questions), basename($file));
+        }
+    }
+
     public function testRejectsForwardReferenceInShowIf(): void
     {
         $data = Fixtures::smallArray();
