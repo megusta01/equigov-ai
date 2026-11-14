@@ -36,11 +36,14 @@ achados do diagnóstico ──▶ busca híbrida no acervo ──▶ LLM (format
 
 Medições sobre o acervo de `corpus/` (6 normas federais, 312 trechos), modo híbrido, em 13/11/2026.
 
-**Recuperação** (`python -m app.cli eval`, 8 casos anotados em `app/evaluation/cases.json`):
+**Recuperação** (`python -m app.cli eval`, casos anotados em `app/evaluation/cases.json`):
 
-| hit@1 | hit@5 | MRR |
-|:-:|:-:|:-:|
-| 0,875 | 0,875 | 0,875 |
+| Avaliação | Casos | hit@1 | hit@5 | MRR |
+|---|:-:|:-:|:-:|:-:|
+| Inicial | 8 | 0,875 | 0,875 | 0,875 |
+| Ampliada (14/11/2026), 9 casos sobre o Estatuto da Igualdade Racial | 21 | 0,952 | 0,952 | 0,952 |
+
+Como hit@1 = hit@5, o caso que falha não aparece nem entre os 5 primeiros: quando a busca encontra o documento certo, ele vem em primeiro lugar.
 
 **Geração** (`plan-v1`, `openai/gpt-oss-120b` via Groq, diagnóstico de exemplo com 2 achados):
 

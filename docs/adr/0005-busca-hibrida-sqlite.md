@@ -17,6 +17,6 @@ O acervo são normas federais: termos exatos importam ("Libras", "10.048", "aten
 
 ## Consequências
 - (+) Custo zero de busca; funciona sem internet depois do build.
-- (+) Resultado medido: hit@1 = 0,875 em 8 casos anotados (`app/evaluation/cases.json`).
+- (+) Resultado medido: hit@1 = 0,952 em 21 casos anotados (`app/evaluation/cases.json`); a primeira avaliação, com 8 casos, deu 0,875.
 - (−) Índice em memória por processo: escala até dezenas de milhares de trechos. A classe `Retriever` isola a troca por um banco vetorial.
 - (−) Ingestão pela CLI e servidor são processos diferentes; o índice é recarregado quando a assinatura do banco muda (bug real, ver estudos de caso).

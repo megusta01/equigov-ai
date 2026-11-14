@@ -39,7 +39,7 @@ Tudo vai para a trilha de auditoria: modelo, versão do prompt, métricas de ver
 | | |
 |---|---|
 | **Testes** | 70 PHPUnit · 60 pytest · 66 verificações de integração contra WordPress + MariaDB + IA reais · E2E em navegador (Playwright) |
-| **Busca nas normas** | hit@1 = 0,875 na primeira avaliação (8 casos); conjunto ampliado para 21 casos, com foco no Estatuto da Igualdade Racial |
+| **Busca nas normas** | hit@1 = 0,952 em 21 casos anotados (20 acertos em primeiro lugar), 9 deles sobre o Estatuto da Igualdade Racial |
 | **Geração** | plano real com 100% das citações válidas, cerca de 3,2 mil tokens e 3 s por plano (Groq, plano gratuito) |
 | **CI** | lint, unitários, integração, E2E, varredura de segredos, auditoria de dependências e build das imagens a cada push |
 
