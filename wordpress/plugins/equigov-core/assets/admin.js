@@ -284,7 +284,7 @@
 
     let generate = null;
     if (C.canManage) {
-      const ctx = h('textarea', { id: 'eg-ctx', rows: '3', class: 'large-text', maxlength: '1000', placeholder: 'Ex.: município de 80 mil habitantes, 2 unidades de atendimento, orçamento restrito.' });
+      const ctx = h('textarea', { id: 'eg-ctx', rows: '3', class: 'large-text', maxlength: '1000', 'aria-describedby': 'eg-ctx-hint', placeholder: 'Ex.: município de 80 mil habitantes, 2 unidades de atendimento, orçamento restrito.' });
       const max = h('select', { id: 'eg-max' }, [3, 5, 8].map((n) => h('option', { value: n, text: n, selected: n === 5 })));
       const button = h('button', { type: 'submit', class: 'button button-primary', text: 'Gerar sugestões com IA' });
       generate = h('form', { class: 'eg-card', onSubmit: async (ev) => {
@@ -302,7 +302,8 @@
       } },
         h('h3', { text: 'Gerar plano de ação' }),
         h('p', { class: 'description', text: 'A IA sugere medidas fundamentadas na biblioteca de normas. Nenhuma sugestão vale antes de revisão e aprovação humanas.' }),
-        h('p', {}, h('label', { for: 'eg-ctx', text: 'Contexto da instituição (opcional)' }), h('br'), ctx),
+        h('p', {}, h('label', { for: 'eg-ctx', text: 'Contexto da instituição (opcional)' }), h('br'), ctx,
+          h('span', { id: 'eg-ctx-hint', class: 'description', text: 'Este texto é enviado ao provedor de IA. Não inclua nomes de pessoas; CPF, CNPJ, e-mails e telefones são removidos automaticamente.' })),
         h('p', {}, h('label', { for: 'eg-max', text: 'Número máximo de sugestões ' }), max),
         button);
     }
@@ -351,7 +352,8 @@
       footer.append(h('p', { text: 'Decida cada sugestão e conclua a revisão. A aprovação final é feita por outra pessoa.' }), b);
     }
     if (C.canApprove && p.status === 'reviewed') {
-      const sameReviewer = p.reviewed_by && p.reviewed_by.id === C.userId;
+      // Espelha a regra do servidor: quem concluiu a revisão ou decidiu qualquer item não aprova.
+      const sameReviewer = (p.reviewed_by && p.reviewed_by.id === C.userId) || p.items.some((i) => i.decided_by === C.userId);
       const approve = h('button', { type: 'button', class: 'button button-primary', text: 'Aprovar plano', disabled: sameReviewer });
       const reason = h('textarea', { id: 'eg-reason', rows: '2', class: 'large-text', maxlength: '1000' });
       const reject = h('button', { type: 'button', class: 'button', text: 'Rejeitar plano' });
@@ -367,7 +369,7 @@
       });
       footer.append(
         h('p', { text: `Revisado por ${p.reviewed_by?.name || '—'}.` }),
-        sameReviewer ? h('p', { class: 'eg-warning', text: 'Você revisou este plano e por isso não pode aprová-lo (separação de funções).' }) : null,
+        sameReviewer ? h('p', { class: 'eg-warning', text: 'Você participou da revisão deste plano e por isso não pode aprová-lo (separação de funções).' }) : null,
         approve,
         h('p', {}, h('label', { for: 'eg-reason', text: 'Motivo, se for rejeitar' }), h('br'), reason),
         reject,
