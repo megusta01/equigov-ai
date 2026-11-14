@@ -88,7 +88,17 @@ $expect('leitor não gera plano', $call('POST', "/diagnoses/{$diag}/action-plans
 $as('gestor.b');
 $expect('gestor B não gera plano para diagnóstico de A', $call('POST', "/diagnoses/{$diag}/action-plans"), 404);
 
+// Outra conexão ao banco segura a trava do diagnóstico, simulando uma geração em andamento.
+global $wpdb;
+[$dbHost, $dbPort, $dbSocket] = $wpdb->parse_db_host(DB_HOST); // "db:3306" → host e porta separados
+$other = new mysqli($dbHost, DB_USER, DB_PASSWORD, DB_NAME, $dbPort ? (int) $dbPort : 3306, $dbSocket ?: null);
+$other->query("SELECT GET_LOCK('equigov_plan_{$diag}', 0)");
 $as('gestora.a');
+$busy = $expect('geração simultânea é bloqueada pela trava', $call('POST', "/diagnoses/{$diag}/action-plans"), 409);
+$check('erro indica geração em andamento', ($busy['code'] ?? '') === 'eg_plan_busy');
+$other->query("SELECT RELEASE_LOCK('equigov_plan_{$diag}')");
+$other->close();
+
 $plan = $expect('gestora A gera plano com IA', $call('POST', "/diagnoses/{$diag}/action-plans", ['context' => 'Município de médio porte.', 'max_actions' => 3]), 201);
 $created['plans'][] = (int) ($plan['id'] ?? 0);
 $check('plano começa aguardando revisão', ($plan['status'] ?? '') === 'pending_review');
@@ -115,6 +125,9 @@ $check('versão editada guardada à parte', str_starts_with((string) $after['ite
 $expect('revisor não aprova', $call('POST', "/action-plans/{$plan['id']}/approve"), 403);
 $reviewed = $expect('revisor conclui a revisão', $call('POST', "/action-plans/{$plan['id']}/complete-review"), 200);
 $check('status revisado', ($reviewed['status'] ?? '') === 'reviewed');
+$as('gestora.a');
+$expect('plano revisado (ainda não aprovado) bloqueia novo plano', $call('POST', "/diagnoses/{$diag}/action-plans"), 409);
+$as('revisor.a');
 $expect('plano revisado não aceita novas decisões', $call('PATCH', "/action-plans/{$plan['id']}/items/a1", ['decision' => 'accepted']), 409);
 
 WP_CLI::log('Aprovação');
@@ -134,9 +147,15 @@ if (empty($plan2['id'])) {
     $failures++;
 } else {
 $created['plans'][] = (int) $plan2['id'];
-$decideAll($plan2, 'gestora.a');
-$expect('gestora conclui a própria revisão', $call('POST', "/action-plans/{$plan2['id']}/complete-review"), 200);
-$seg = $expect('gestora não aprova o que ela mesma revisou', $call('POST', "/action-plans/{$plan2['id']}/approve"), 403);
+$as('gestora.a');
+$call('PATCH', "/action-plans/{$plan2['id']}/items/a1", ['decision' => 'accepted', 'note' => 'Conferido com o texto da norma citada.']);
+$as('revisor.a');
+foreach (array_slice($plan2['items'], 1) as $item) {
+    $call('PATCH', "/action-plans/{$plan2['id']}/items/{$item['id']}", ['decision' => 'accepted', 'note' => 'Conferido com o texto da norma citada.']);
+}
+$expect('revisor conclui a revisão compartilhada', $call('POST', "/action-plans/{$plan2['id']}/complete-review"), 200);
+$as('gestora.a');
+$seg = $expect('gestora não aprova plano em que decidiu um item', $call('POST', "/action-plans/{$plan2['id']}/approve"), 403);
 $check('erro de separação de funções', ($seg['code'] ?? '') === 'eg_segregation');
 $expect('rejeição exige motivo', $call('POST', "/action-plans/{$plan2['id']}/reject", ['reason' => 'curto']), 422);
 $expect('rejeição com motivo', $call('POST', "/action-plans/{$plan2['id']}/reject", ['reason' => 'Será refeito com o novo acervo de normas.']), 200);

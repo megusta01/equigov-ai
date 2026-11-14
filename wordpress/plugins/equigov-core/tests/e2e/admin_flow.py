@@ -53,6 +53,7 @@ def main() -> int:
 
         # 1. Gestora cria e responde
         login(page, "gestora.a")
+        page.select_option("#eg-q", label="Diagnóstico de acesso inclusivo a serviços públicos (v1)")
         page.fill("#eg-title", "Unidade Centro — E2E")
         page.click("text=Iniciar diagnóstico")
         expect(page.get_by_role("heading", name="Unidade Centro — E2E")).to_be_visible()
