@@ -39,8 +39,9 @@ wp: ## Roda WP-CLI. Ex: make wp ARGS="equigov seed"
 test: ## Testes unitários do plugin
 	cd $(PLUGIN) && composer install --quiet && vendor/bin/phpunit
 
-smoke: ## Teste de integração da API (precisa do install antes)
+smoke: ## Integração: API + fluxo do plano com IA (precisa do install antes)
 	$(DC) exec wordpress wp --allow-root eval-file wp-content/plugins/equigov-core/tests/smoke/api-smoke.php
+	$(DC) exec wordpress wp --allow-root eval-file wp-content/plugins/equigov-core/tests/smoke/plan-smoke.php
 
 ai-test: ## Testes do serviço de IA
 	$(DC) run --rm --no-deps ai-service python -m pytest

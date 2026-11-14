@@ -65,9 +65,11 @@ switch ($Task) {
     }
     'smoke' {
         # Integração: API real + banco real, dentro do container do WordPress.
-        Invoke-Checked {
-            docker compose exec wordpress wp --allow-root eval-file `
-                wp-content/plugins/equigov-core/tests/smoke/api-smoke.php
+        foreach ($f in 'api-smoke.php', 'plan-smoke.php') {
+            Invoke-Checked {
+                docker compose exec wordpress wp --allow-root eval-file `
+                    "wp-content/plugins/equigov-core/tests/smoke/$f"
+            }
         }
     }
     'ai-test' {
@@ -107,7 +109,7 @@ Uso: .\tasks.ps1 <tarefa>
   shell     Shell no container do WordPress
   wp        WP-CLI. Ex: .\tasks.ps1 wp equigov seed
   test      PHPUnit (roda em container)
-  smoke     Teste de integração da API (precisa do install antes)
+  smoke     Integração: API de diagnóstico + fluxo do plano com IA (precisa do install)
   ai-test   Testes do serviço de IA (pytest)
   ai-lint   Lint do serviço de IA (ruff)
   ai-ingest Ingere os documentos de ai-service/corpus
