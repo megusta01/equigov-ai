@@ -6,7 +6,9 @@
 |---|---|---|---|
 | Acesso a dados de outra instituição | Isolamento em `map_meta_cap`; listagens filtradas na consulta; 404 para não revelar existência | `InstitutionScope`, `InstitutionPolicy` | `InstitutionPolicyTest`, smokes |
 | Escalada de privilégio | Capacidades próprias `eg_*`; CPTs nunca caem em capacidades nativas; editor nativo desligado | `Roles`, `Registrar` | `RolesTest` |
-| Uma pessoa controlar todo o processo | Revisor ≠ aprovador; decisão por item; sugestão fraca exige justificativa | `PlanWorkflow` | `PlanWorkflowTest`, `plan-smoke` |
+| Uma pessoa controlar todo o processo | Quem concluiu a revisão **ou decidiu qualquer item** não aprova; sugestão fraca exige justificativa | `PlanWorkflow` | `PlanWorkflowTest`, `plan-smoke` |
+| Planos duplicados por requisições simultâneas | Trava por diagnóstico no MariaDB (`GET_LOCK`); plano revisado ainda conta como aberto | `ActionPlanService` | `plan-smoke` |
+| Dado pessoal no texto livre enviado à IA | Filtro de CPF, CNPJ, e-mail e telefone; aviso na tela para não escrever nomes | `PiiRedactor`, `admin.js` | `PiiRedactorTest` |
 | Injeção de SQL | `$wpdb->prepare()` em toda consulta com entrada externa | `Repositories` | revisão de código |
 | XSS (inclusive conteúdo gerado por IA) | Interface insere texto só por `textContent`; nunca `innerHTML` | `assets/admin.js` | E2E |
 | CSRF | Cookie + nonce `wp_rest` (`X-WP-Nonce`) | `AdminPage` | — |
@@ -22,7 +24,7 @@
 
 ## LGPD
 
-- **Minimização:** o serviço de IA e o provedor externo recebem apenas os achados do diagnóstico (perguntas, respostas, regras, referências). Nenhum nome, e-mail, usuário ou identificação da instituição sai do WordPress.
+- **Minimização:** o serviço de IA e o provedor externo recebem os achados do diagnóstico (perguntas, respostas, regras, referências) e, se o gestor preencher, um contexto livre da instituição. O sistema não envia dados de usuários nem a identificação da instituição. O contexto livre passa por um filtro que remove CPF, CNPJ, e-mail e telefone; **nomes de pessoas não são detectáveis automaticamente**, por isso a tela orienta a não escrevê-los.
 - **IP em auditoria:** gravado como HMAC-SHA256 com salt do WordPress. Permite correlacionar eventos sem guardar o IP.
 - **Dados de pessoas atendidas:** o sistema avalia **processos institucionais**, não indivíduos. O questionário pergunta *se* a instituição coleta dados desagregados, nunca os próprios dados.
 - **Provedor de LLM:** escolhido entre os que declaram não usar dados de API para treino. Trocar de provedor é configuração (ADR 0007).

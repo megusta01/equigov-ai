@@ -62,3 +62,16 @@ Falhas encontradas durante o desenvolvimento, todas com teste de regressão. Fic
 **Causa.** Ele contava os cartões logo após a navegação, antes de a página terminar de renderizar, e encontrava zero.
 
 **Correção.** Esperar por um elemento (`expect(...).to_be_visible()`), nunca por tempo fixo.
+
+## 7. Revisão externa encontrou quatro brechas no fluxo do plano
+
+**Contexto.** Submeti o projeto a uma revisão independente (outro assistente de IA, sem acesso ao histórico desta implementação). Ela apontou quatro problemas; conferi cada um no código e todos procediam.
+
+| Brecha | Causa | Correção | Teste |
+|---|---|---|---|
+| Era possível gerar outro plano enquanto um plano revisado aguardava aprovação | A checagem de "plano aberto" considerava só `pending_review` e `in_review` | `PlanWorkflow::OPEN` inclui `reviewed` | `testReviewedPlanIsStillOpen`, smoke |
+| Quem decidiu itens podia aprovar, se outra pessoa clicasse em "concluir" | A separação de funções comparava o aprovador só com quem concluiu | `participants()`: todos que decidiram itens + quem concluiu | `testWhoeverDecidedAnyItemCannotApprove`, smoke com revisão compartilhada |
+| Duas requisições simultâneas podiam gerar dois planos | Checagem e gravação sem exclusão mútua | `GET_LOCK` por diagnóstico; a segunda recebe 409 `eg_plan_busy` | Smoke: outra conexão segura a trava e a geração é recusada |
+| A documentação dizia que nenhum dado pessoal ia para a IA, mas o contexto é texto livre | Promessa maior que o código | `PiiRedactor` (CPF, CNPJ, e-mail, telefone), aviso na tela e documentação corrigida | `PiiRedactorTest` |
+
+**Lição.** Regras de controle (quem pode aprovar, quando um processo está aberto) precisam ser pensadas pelos papéis reais das pessoas, não só pelo caminho feliz. E a documentação de privacidade deve prometer exatamente o que o código garante.

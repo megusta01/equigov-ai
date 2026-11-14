@@ -47,7 +47,7 @@ Padrão aplicado em todo o plugin: **regra de negócio em classe pura** (testáv
 
 | Onde | O quê | Por quê |
 |---|---|---|
-| CPT `eg_questionnaire` | Questionário (schema JSON versionado em `_eg_schema`) | Conteúdo editorial: revisões, lixeira, editor |
+| CPT `eg_questionnaire` | Questionário (schema JSON versionado em `_eg_schema`); dois incluídos: igualdade racial e acesso inclusivo | Conteúdo editorial: revisões, lixeira, editor |
 | CPT `eg_diagnosis` | Diagnóstico + **snapshot do schema** + resultado | Snapshot: editar o questionário não altera diagnósticos antigos |
 | CPT `eg_action_plan` | Itens (texto original da IA + versão final + decisão), resposta completa da IA, status | Rastreabilidade integral |
 | Tabela `eg_responses` | Uma linha por resposta; `UNIQUE (diagnosis_id, question_key)` | Volume e upsert; postmeta não serve |
@@ -78,7 +78,7 @@ sequenceDiagram
     WP->>WP: grava plano pending_review + auditoria
     R->>WP: PATCH /items/{a1..} aceitar · editar · rejeitar
     R->>WP: POST /complete-review
-    A->>WP: POST /approve (≠ revisor)
+    A->>WP: POST /approve (não participou da revisão)
     WP->>WP: approved + auditoria
 ```
 

@@ -34,6 +34,11 @@ Formato padrão do WordPress: `{ "code": "...", "message": "...", "data": { "sta
 | 409 | `eg_locked`, `eg_not_scored` | Operação incompatível com o estado do diagnóstico |
 | 422 | `eg_invalid_answers` | Respostas inválidas; `data.fields` traz o erro por pergunta |
 | 422 | `eg_incomplete` | Envio sem todas as obrigatórias visíveis; `data.missing` lista as chaves |
+| 409 | `eg_plan_open` | Já existe plano não finalizado (aguardando revisão, em revisão ou revisado) para o diagnóstico |
+| 409 | `eg_plan_busy` | Outra geração de plano para o mesmo diagnóstico está em andamento |
+| 403 | `eg_segregation` | Quem concluiu a revisão ou decidiu algum item tentou aprovar |
+| 422 | `eg_note_required` / `eg_review_incomplete` | Rejeição ou aceite de sugestão fraca sem justificativa / itens sem decisão |
+| 502–504 | `eg_ai_*` | Falhas do serviço de IA, com mensagem para o gestor (ver runbook) |
 
 ## Endpoints
 
@@ -67,6 +72,18 @@ Valida o conjunto, descarta respostas de perguntas que ficaram ocultas, calcula 
 
 ### `GET /diagnoses/{id}/report`
 Resultado completo de um diagnóstico concluído.
+
+### Plano de ação
+
+| Método | Rota | Quem | O que faz |
+|---|---|---|---|
+| POST | `/diagnoses/{id}/action-plans` | gestor | Gera sugestões com IA (`context` opcional, filtrado de dados pessoais; `max_actions` 1–10) |
+| GET | `/diagnoses/{id}/action-plans` | leitor+ | Planos do diagnóstico |
+| GET | `/action-plans/{id}` | leitor+ | Itens (texto original da IA, versão final, decisão), fontes, métricas da IA |
+| PATCH | `/action-plans/{id}/items/{a1…}` | revisor | `decision`: `accepted` · `edited` (com `title`, `description`, `priority`, `deadline_days`, `indicator`) · `rejected`; `note` |
+| POST | `/action-plans/{id}/complete-review` | revisor | Exige todos os itens decididos |
+| POST | `/action-plans/{id}/approve` | gestor que não participou da revisão | Finaliza o plano |
+| POST | `/action-plans/{id}/reject` | gestor | `reason` com 10+ caracteres |
 
 ## Resultado do diagnóstico
 

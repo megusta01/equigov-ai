@@ -2,9 +2,9 @@
 
 [![CI](https://github.com/megusta01/equigov-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/megusta01/equigov-ai/actions/workflows/ci.yml)
 
-Plataforma para órgãos públicos **diagnosticarem barreiras de acesso** aos seus serviços e montarem **planos de ação** com apoio de IA, em que cada sugestão é **rastreável até o trecho da norma que a fundamenta** e só vale depois de **revisão e aprovação por duas pessoas diferentes**.
+Plataforma para órgãos públicos **diagnosticarem riscos de desigualdade racial e barreiras de acesso** nos seus serviços e montarem **planos de ação** com apoio de IA, em que cada sugestão é **rastreável até o trecho da norma que a fundamenta** e só vale depois de **revisão e aprovação por duas pessoas diferentes**.
 
-> Projeto independente de portfólio, desenvolvido por Gustavo Figueredo. Não tem vínculo com nenhum órgão público.
+> Projeto independente de portfólio, desenvolvido por Gustavo Figueredo, inspirado nos problemas que iniciativas como a INCLUA – Igualdade Racial (Ipea/MIR) buscam enfrentar. Não tem vínculo com nenhum órgão público nem reproduz seus instrumentos.
 
 <!-- Capturas: salve em docs/img/ com estes nomes -->
 | Diagnóstico | Revisão com a fonte ao lado | Plano aprovado |
@@ -13,7 +13,9 @@ Plataforma para órgãos públicos **diagnosticarem barreiras de acesso** aos se
 
 ## O problema
 
-Um serviço público pode ser formalmente aberto a todos e, na prática, excluir quem não tem internet, quem é surdo, quem não lê bem ou quem não fala português. Gestores raramente têm um instrumento para medir essas barreiras e, quando têm, falta tempo para ligar cada problema à obrigação legal correspondente e a uma medida concreta.
+Um serviço público pode ser formalmente aberto a todos e, na prática, reproduzir desigualdades raciais: sem o quesito raça/cor nos registros, ninguém vê se pessoas negras esperam mais ou têm mais pedidos negados; sem protocolo, casos de discriminação não são apurados. O mesmo vale para outras barreiras, como canal só digital, falta de atendimento em Libras ou linguagem inacessível. Gestores raramente têm um instrumento para medir esses riscos e ligar cada um à norma correspondente e a uma medida concreta.
+
+Dois questionários acompanham o projeto: **maturidade institucional em igualdade racial** (dados raciais, governança, enfrentamento do racismo institucional, formação, participação) e **acesso inclusivo a serviços públicos**. Novos questionários são arquivos JSON versionados, sem código.
 
 ## O que o sistema faz
 
@@ -27,7 +29,7 @@ Gestor pede sugestões ─▶ busca nas normas por achado ─▶ LLM propõe ─
 Revisor decide cada sugestão (aceitar · editar · rejeitar), lendo o trecho original da norma ao lado
         │
         ▼
-Outro gestor aprova ou rejeita (quem revisou não pode aprovar) ─▶ plano final com a origem de cada ação
+Outro gestor aprova ou rejeita (quem participou da revisão não aprova) ─▶ plano final com a origem de cada ação
 ```
 
 Tudo vai para a trilha de auditoria: modelo, versão do prompt, métricas de verificação e tokens da geração; cada decisão humana; quem revisou e quem aprovou.
@@ -36,8 +38,8 @@ Tudo vai para a trilha de auditoria: modelo, versão do prompt, métricas de ver
 
 | | |
 |---|---|
-| **Testes** | 58 PHPUnit · 60 pytest · 62 verificações de integração contra WordPress + MariaDB + IA reais · E2E em navegador (Playwright) |
-| **Busca nas normas** | hit@1 = 0,875 em 8 casos anotados (6 normas federais, 312 trechos) |
+| **Testes** | 70 PHPUnit · 60 pytest · 66 verificações de integração contra WordPress + MariaDB + IA reais · E2E em navegador (Playwright) |
+| **Busca nas normas** | hit@1 = 0,875 na primeira avaliação (8 casos); conjunto ampliado para 21 casos, com foco no Estatuto da Igualdade Racial |
 | **Geração** | plano real com 100% das citações válidas, cerca de 3,2 mil tokens e 3 s por plano (Groq, plano gratuito) |
 | **CI** | lint, unitários, integração, E2E, varredura de segredos, auditoria de dependências e build das imagens a cada push |
 
