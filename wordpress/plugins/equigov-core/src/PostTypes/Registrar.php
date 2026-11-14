@@ -29,8 +29,10 @@ final class Registrar
     public static function register(): void
     {
         self::postType(self::QUESTIONNAIRE, 'Questionários', 'Questionário', Roles::MANAGE_QUESTIONNAIRES, Roles::VIEW_DIAGNOSES, 'dashicons-forms', ['title', 'editor', 'revisions']);
-        self::postType(self::DIAGNOSIS, 'Diagnósticos', 'Diagnóstico', Roles::MANAGE_DIAGNOSES, Roles::VIEW_DIAGNOSES, 'dashicons-chart-bar', ['title']);
-        self::postType(self::ACTION_PLAN, 'Planos de ação', 'Plano de ação', Roles::APPROVE_ACTION_PLANS, Roles::VIEW_DIAGNOSES, 'dashicons-yes-alt', ['title', 'editor', 'revisions']);
+        // Diagnósticos e planos só mudam pelo fluxo (API + tela EquiGov): o editor nativo permitiria
+        // alterar respostas ou aprovar sem passar pelas regras. Por isso show_ui = false.
+        self::postType(self::DIAGNOSIS, 'Diagnósticos', 'Diagnóstico', Roles::MANAGE_DIAGNOSES, Roles::VIEW_DIAGNOSES, 'dashicons-chart-bar', ['title'], false);
+        self::postType(self::ACTION_PLAN, 'Planos de ação', 'Plano de ação', Roles::APPROVE_ACTION_PLANS, Roles::VIEW_DIAGNOSES, 'dashicons-yes-alt', ['title'], false);
         self::postType(self::RESOURCE, 'Biblioteca', 'Recurso', Roles::MANAGE_LIBRARY, 'read', 'dashicons-book', ['title', 'editor', 'excerpt', 'thumbnail']);
 
         register_taxonomy(self::DIMENSION, [self::QUESTIONNAIRE, self::RESOURCE, self::ACTION_PLAN], [
@@ -50,13 +52,13 @@ final class Registrar
     }
 
     /** @param string[] $supports */
-    private static function postType(string $slug, string $plural, string $singular, string $manageCap, string $readCap, string $icon, array $supports): void
+    private static function postType(string $slug, string $plural, string $singular, string $manageCap, string $readCap, string $icon, array $supports, bool $showUi = true): void
     {
         register_post_type($slug, [
             'labels'       => ['name' => $plural, 'singular_name' => $singular, 'add_new_item' => "Adicionar {$singular}"],
             'public'       => false,
-            'show_ui'      => true,
-            'show_in_menu' => true,
+            'show_ui'      => $showUi,
+            'show_in_menu' => $showUi,
             'menu_icon'    => $icon,
             'supports'     => $supports,
             // Exposição pela REST fica nos endpoints próprios (Dia 2), que aplicam o escopo institucional.
@@ -103,6 +105,13 @@ final class Registrar
                 InstitutionScope::POST_META => ['type' => 'integer', 'sanitize' => 'absint'],
                 '_eg_diagnosis_id'          => ['type' => 'integer', 'sanitize' => 'absint'],
                 '_eg_approved_by'           => ['type' => 'integer', 'sanitize' => 'absint'],
+                '_eg_reviewed_by'           => ['type' => 'integer', 'sanitize' => 'absint'],
+                '_eg_plan_status'           => ['type' => 'string',  'sanitize' => self::enum(\EquiGov\Core\ActionPlan\PlanWorkflow::STATUSES, 'pending_review')],
+                '_eg_items'                 => ['type' => 'string',  'sanitize' => [self::class, 'sanitizeJson']],
+                '_eg_ai_response'           => ['type' => 'string',  'sanitize' => [self::class, 'sanitizeJson']],
+                '_eg_context'               => ['type' => 'string',  'sanitize' => 'sanitize_textarea_field'],
+                '_eg_rejection_reason'      => ['type' => 'string',  'sanitize' => 'sanitize_textarea_field'],
+                '_eg_decided_at'            => ['type' => 'string',  'sanitize' => 'sanitize_text_field'],
             ],
             self::QUESTIONNAIRE => [
                 '_eg_version'               => ['type' => 'integer', 'sanitize' => 'absint'],
