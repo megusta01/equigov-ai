@@ -92,6 +92,18 @@ class OpenAICompatibleClient:
                 return self._parse(resp, started, attempt)
             if resp.status_code in (401, 403):
                 raise LLMError("llm_auth", "Chave do provedor de IA inválida ou sem permissão.", 502)
+            if resp.status_code == 413 and "tokens per minute" in resp.text.lower():
+                # Groq: esta requisição sozinha excede o limite de tokens/minuto do plano. Repetir não resolve.
+                raise LLMError(
+                    "llm_quota_too_small",
+                    "A requisição excede o limite de tokens por minuto do plano do provedor de IA. "
+                    "Reduza MAX_SOURCES ou LLM_MAX_TOKENS, ou use um modelo com limite maior.",
+                    503,
+                )
+            if resp.status_code == 400 and "json_validate_failed" in resp.text and attempt <= self.max_retries:
+                # Modo JSON: o modelo gerou JSON inválido e o provedor recusou. É aleatório: nova tentativa costuma passar.
+                log.warning("llm_retry", extra={"status": 400, "reason": "json_validate_failed", "attempt": attempt})
+                continue
             if resp.status_code in RETRYABLE and attempt <= self.max_retries:
                 log.warning("llm_retry", extra={"status": resp.status_code, "attempt": attempt})
                 self._backoff(attempt, resp.headers.get("retry-after"))
@@ -107,7 +119,8 @@ class OpenAICompatibleClient:
         delay = min(2 ** (attempt - 1), 8.0)
         if retry_after:
             try:
-                delay = min(float(retry_after), 10.0)
+                # Limite de tokens/minuto pode pedir esperas de ~20 s; acima disso, melhor falhar e avisar.
+                delay = min(float(retry_after), 20.0)
             except ValueError:
                 pass
         self._sleep(delay)

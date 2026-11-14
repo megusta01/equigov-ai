@@ -85,6 +85,31 @@ def test_timeout_becomes_504():
     assert len(sleeps) == 2
 
 
+def test_groq_tpm_413_is_explained_and_not_retried():
+    body = {
+        "error": {"message": "Request too large for model `openai/gpt-oss-120b` ... on tokens per minute (TPM): Limit 8000, Requested 9100"}
+    }
+    c, sleeps = client(lambda req: httpx.Response(413, json=body))
+    with pytest.raises(LLMError) as e:
+        c.complete([], max_tokens=10)
+    assert (e.value.code, e.value.status) == ("llm_quota_too_small", 503)
+    assert sleeps == []
+
+
+def test_json_validate_failed_is_retried():
+    bad = httpx.Response(400, json={"error": {"code": "json_validate_failed", "message": "Failed to generate JSON"}})
+    calls = iter([bad, httpx.Response(200, json=OK_BODY)])
+    c, _ = client(lambda req: next(calls))
+    assert c.complete([], max_tokens=10).attempts == 2
+
+
+def test_long_retry_after_is_capped():
+    calls = iter([httpx.Response(429, headers={"retry-after": "45"}), httpx.Response(200, json=OK_BODY)])
+    c, sleeps = client(lambda req: next(calls))
+    c.complete([], max_tokens=10)
+    assert sleeps == [20.0]
+
+
 def test_unexpected_body():
     c, _ = client(lambda req: httpx.Response(200, json={"oops": True}))
     with pytest.raises(LLMError, match="formato inesperado"):
